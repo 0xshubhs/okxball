@@ -1,0 +1,14 @@
+# OS
+.DS_Store
+
+# deps / build (each package also has its own .gitignore)
+node_modules/
+.next/
+dist/
+artifacts/
+cache/
+typechain-types/
+
+# env
+.env
+.env*.local
