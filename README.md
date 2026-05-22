@@ -1,8 +1,25 @@
-# ⚽ Agentic Fantasy Football OS
+# ⚽ Agentic Fantasy Football OS — Fantasy World Cup, on-chain
 
-> Fully on-chain fantasy football on **X Layer**. AI agents auto-manage your squad of **Player NFTs** from live match stats, scoring streams in via oracles, and winnings pay out instantly in **OKB** — all from your **OKX Wallet**.
+> A fully on-chain **Fantasy World Cup** on **X Layer**. AI agents (Claude) auto-manage your squad of national-team **Player NFTs** from live match stats, scoring streams through an on-chain **oracle**, and winnings pay out in **OKB** with a one-tap swap to stablecoins via **OKX DEX** — all from your **OKX Wallet**.
 
-A GameFi + AI Agents + NFTs hackathon build for the X Layer / OKX ecosystem.
+Built for the **OKX X Cup Hackathon** (World Cup theme · X Layer). Tracks: **GameFi + AI Agent + NFT**.
+
+---
+
+## 🔗 On-chain proof (X Layer)
+
+> Fill these in after running `pnpm deploy:testnet` / `:mainnet` (the deploy script writes them automatically to `packages/shared/src/deployments.json` and `web/.env.local`). Until then the app runs in clearly-labelled **Demo** mode.
+
+| Contract | Address | OKLink |
+| --- | --- | --- |
+| PlayerNFT (ERC-721) | `0x…` | [verify](https://www.oklink.com/x-layer) |
+| ScoringOracle | `0x…` | [verify](https://www.oklink.com/x-layer) |
+| FantasyLeague | `0x…` | [verify](https://www.oklink.com/x-layer) |
+| PayoutVault | `0x…` | [verify](https://www.oklink.com/x-layer) |
+
+Sample matchday flow (tx hashes): mint → train → joinLeague → submitLineup → reportPoints → settle → claim — `0x…`
+
+**Network:** X Layer is a Polygon CDK **zkEVM**; gas token **OKB**. Mainnet `chainId 196`, testnet `chainId 1952` ("terigon"). See [`apps/contracts/DEPLOY.md`](apps/contracts/DEPLOY.md).
 
 ---
 
@@ -10,95 +27,95 @@ A GameFi + AI Agents + NFTs hackathon build for the X Layer / OKX ecosystem.
 
 | Pillar | How it works |
 | --- | --- |
-| **AI agents manage your squad** | Run on `AUTO` (optimise on stats) or `PROMPT` ("go all-out attack, captain my hottest player"). The agent picks formation, XI and captain — and explains every decision. |
-| **Player NFTs you can train** | Each footballer is an ERC-721 with on-chain rating/level/XP. Train them to level up and boost projected points + resale value. |
-| **Real-time oracle scoring** | Matchday points stream into the live center; your XI ticks up event-by-event. |
-| **Instant OKB payouts** | Prize pool settles through the PayoutVault straight to your wallet — claim in one tap. |
-| **OKX Wallet + X Layer** | One-tap connect, auto network-switch to X Layer, OKB balance, ramp from OKX CEX. |
+| **AI agent manages your squad** | `AUTO` (optimise on stats) or `PROMPT` ("all-out attack, captain my hottest striker"). A **Claude Opus tool-calling agent** (`/api/agent`) streams its reasoning live and returns a structured XI; one click submits it **on-chain**. Falls back to a deterministic heuristic with no API key. |
+| **National-team Player NFTs you can train** | Each footballer is an ERC-721 with on-chain rating/level/XP. `train()` levels them up and boosts projected points + resale value. |
+| **On-chain oracle scoring** | `ScoringOracle` takes trusted batch `reportPoints(gw, tokenIds, pts)`; `FantasyLeague.settle()` tallies the XI (captain ×2) and splits the pool **50/30/20** to the top three managers. |
+| **Instant OKB payouts + OKX DEX** | Winners pull OKB from `PayoutVault.claim()`, then swap to a stablecoin via the embedded **OKX DEX** widget / aggregator REST API. |
+| **OKX Wallet + X Layer** | One-tap connect, auto network-switch, OKB balance, CEX ramp. |
+| **3D matchday UI** | react-three-fiber stadium hero, an interactive 3D pitch (2D/3D toggle), holographic rarity-shaded NFT cards, and a live matchday scene — all bloom-lit, with mobile / reduced-motion fallbacks. |
 
-## 🗺️ App map
+## 🎬 60-second demo path
 
-| Route | Screen |
-| --- | --- |
-| `/` | Landing — the pitch |
-| `/dashboard` | Manager overview: KPIs, your XI, agent activity, matchday, mini-table |
-| `/squad` | **Squad builder** — pick a formation, fill the pitch, set captain, auto-pick with the agent, submit on-chain |
-| `/players` | **NFT collection + market** — filter, mint, buy, and **train/upgrade** players |
-| `/agent` | **Agent console** — AUTO/PROMPT modes, streamed reasoning log, recommended XI |
-| `/live` | **Live center** — live score, per-player points, event feed, instant payout |
-| `/leaderboard` | League standings + prize split |
-| `/logo` | Brand page — marks, lockups, colors |
+1. Land on the **3D stadium** → "Fantasy World Cup, run by AI agents, on X Layer."
+2. **/agent** → type a strategy → watch Claude stream its reasoning → recommended XI.
+3. One click → **OKX Wallet** signs → lineup tx confirmed on **OKLink**. *(the money shot)*
+4. **/live** → points tick up → **claim OKB** → swap to USDC via **OKX DEX**.
+5. **/players** → mint + train an NFT, rating/level rise on-chain.
+
+Full beat sheet + submission checklist: [`DEMO.md`](DEMO.md).
 
 ---
 
-## 🏗️ Architecture
+## 🏗️ Architecture (pnpm + Turborepo monorepo)
 
 ```
 agentic-fantasy-football-os/
-├── web/                      # Next.js 14 (App Router) + Tailwind + Framer Motion
-│   ├── app/                  # routes (landing, dashboard, squad, players, agent, live, leaderboard, logo)
-│   ├── components/           # PlayerCard, Pitch, WalletConnect, Navbar, logo, StatBar…
+├── apps/web/                  # @aff/web — Next.js 14, wagmi/viem, R3F 3D, Claude agent route
+│   ├── app/                   # routes + /api/agent (Claude) + /api/dex/* (OKX DEX)
+│   ├── components/three/      # Scene3D, StadiumHero, Pitch3D, PlayerCard3D, MatchdayScene
 │   └── lib/
-│       ├── chains.ts         # X Layer mainnet (196) + testnet (195) viem chains
-│       ├── wagmi.ts          # OKX Wallet (injected) connector + wagmi config
-│       ├── data.ts           # players, formations, fixtures, leaderboard (demo data)
-│       ├── contracts.ts      # addresses (env) + ABIs
-│       └── agents/engine.ts  # the agent: projected points, prompt parsing, XI optimiser
-└── contracts/                # Hardhat + OpenZeppelin (Solidity 0.8.24)
-    ├── contracts/
-    │   ├── PlayerNFT.sol     # ERC-721 footballers with train()/mint()
-    │   ├── ScoringOracle.sol # trusted reporters push gameweek points
-    │   ├── PayoutVault.sol   # holds prize pool, instant claims
-    │   └── FantasyLeague.sol # join, submit lineup, settle, allocate winnings
-    ├── scripts/deploy.ts     # deploys + wires the whole stack
-    └── test/fantasy.test.ts  # end-to-end league flow test
+│       ├── onchain.ts         # wagmi write/read hooks (mint/train/join/submit/claim)
+│       ├── okx/               # OKX DEX aggregator client (HMAC-signed) + payout helper
+│       └── agents/engine.ts   # deterministic heuristic (agent fallback + scoring math)
+├── apps/contracts/            # @aff/contracts — Hardhat + OpenZeppelin 5.0.2 (Solidity 0.8.24)
+│   ├── contracts/             # PlayerNFT · ScoringOracle · FantasyLeague · PayoutVault
+│   ├── scripts/deploy.ts      # deploys, wires perms, auto-writes addresses to the app
+│   └── test/fantasy.test.ts   # end-to-end league flow (mint→…→claim)
+└── packages/shared/           # @aff/shared — chains (correct 1952!), ABIs, addresses, constants
 ```
 
-**Agent design.** `lib/agents/engine.ts` is a deterministic, explainable heuristic so the demo runs with zero external calls. To go live with an LLM, swap `parsePrompt` + `pickXI` for a server-side tool-calling agent that returns the same `AgentPlan` shape — the UI and on-chain submission path don't change. (Set `ANTHROPIC_API_KEY` and wire a route handler.)
+The deploy writes addresses into `@aff/shared`, which both the app and contracts read — one source of truth, no copy-paste drift.
 
 ---
 
-## 🚀 Run the frontend
+## 🚀 Run it
 
 ```bash
-cd web
-npm install
-cp .env.example .env.local      # defaults to X Layer testnet; works without contracts
-npm run dev                     # http://localhost:3000
+pnpm install          # workspace install (root)
+pnpm web              # http://localhost:3000  — full app (Demo mode until deployed)
+pnpm test             # contracts: end-to-end league test
+pnpm build            # build everything via turbo
 ```
 
-The UI is fully navigable with simulated data before any contract is deployed. Connect with **OKX Wallet** (the button auto-switches you to X Layer); if OKX isn't installed it links you to install it.
+Connect with **OKX Wallet** (auto-switches to X Layer). Every page shows a **Demo / Live** badge; it flips to **Live** automatically once contracts are deployed.
 
-## 🔗 Deploy the contracts
+## 🔗 Deploy to X Layer
 
 ```bash
-cd contracts
-npm install
-cp .env.example .env            # set PRIVATE_KEY (a funded X Layer testnet key)
-npm run compile
-npm test                        # runs the end-to-end league test
-npm run deploy:testnet          # X Layer testnet (chainId 195)
-# npm run deploy:mainnet        # X Layer (chainId 196)
+# 1) get test OKB: https://web3.okx.com/xlayer/faucet  (or https://www.l2faucet.com/x-layer)
+# 2) apps/contracts/.env  ->  PRIVATE_KEY=...   OKLINK_API_KEY=...
+pnpm deploy:testnet   # chainId 1952  (or pnpm deploy:mainnet -> 196)
 ```
 
-The deploy script prints the four `NEXT_PUBLIC_*` addresses — paste them into `web/.env.local` and restart `npm run dev` to wire the frontend to chain.
+Then run the printed `okverify` commands to verify on OKLink. Full runbook: [`apps/contracts/DEPLOY.md`](apps/contracts/DEPLOY.md).
+
+**Seed a demo matchday** (real txns for your video): `pnpm --filter @aff/contracts seed:testnet` — mints, joins, submits, reports oracle points, settles (50/30/20) and claims, printing an OKLink link per step.
+
+### Optional live keys (`apps/web/.env.local`)
+- `ANTHROPIC_API_KEY` — turns the agent console into a real Claude agent (heuristic without it).
+- `OKX_DEX_API_KEY` / `_SECRET_KEY` / `_PASSPHRASE` / `_PROJECT_ID` — enables the DEX REST payout swap.
+- `NEXT_PUBLIC_PAYOUT_TOKEN_ADDRESS` — stablecoin to pre-select in the swap widget.
 
 ### X Layer networks
 
-| | Mainnet | Testnet |
+| | Mainnet | Testnet ("terigon") |
 | --- | --- | --- |
-| Chain ID | 196 | 195 |
-| RPC | `https://rpc.xlayer.tech` | `https://testrpc.xlayer.tech` |
+| Chain ID | **196** | **1952** *(not 195 — that's the dead X1 testnet)* |
+| RPC | `https://rpc.xlayer.tech` | `https://testrpc.xlayer.tech/terigon` |
 | Gas token | OKB | OKB |
-| Explorer | oklink.com/xlayer | oklink.com/xlayer-test |
+| Explorer | oklink.com/x-layer | oklink.com/x-layer-testnet |
 
 ---
 
-## 🎯 Why it fits the grant
+## 🟣 OKX / OnchainOS integrations
 
-- **Under-built category on EVM L2s** — agentic GameFi fantasy sports is fresh.
-- **Retention + NFT utility** — training loop + matchday cadence drive repeat sessions.
-- **High concurrency** — matchdays create spiky, real-time load that suits X Layer's throughput.
-- **Seamless ramps** — OKX Wallet + OKB bring the huge traditional fantasy market on-chain.
+- **OKX Wallet** — injected EIP-1193 connector, auto network-switch.
+- **OKX DEX** — embedded `@okxweb3/dex-widget` swap (X Layer) + server-side aggregator REST (`/api/dex/quote|swap`, HMAC-signed) for "claim → stablecoin".
+- **OKLink** — contract verification via `@okxweb3/hardhat-explorer-verify`.
+- **OKB** — native gas + mint/train/entry/prize currency end-to-end.
 
-> Demo data (players, fixtures, scores) is simulated for the hackathon. The contract layer, wallet integration, and X Layer config are real.
+## 🎯 Why it scales X Layer
+
+Fantasy sports is a massive, proven retention market; the NFT-training loop + matchday cadence + instant payouts is a credible on-chain wedge, and matchdays create spiky real-time load that suits X Layer's throughput. OKX Wallet + OKB make the on-ramp seamless.
+
+> **Honesty note:** demo player/fixture/leaderboard data is illustrative seed data. The contracts, wallet integration, Claude agent, OKX DEX wiring, and X Layer config are real; the app gates real transactions behind a deployment check and shows a Demo/Live badge so nothing is misrepresented.

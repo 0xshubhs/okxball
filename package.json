@@ -1,0 +1,23 @@
+{
+  "name": "agentic-fantasy-football-os",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Agentic Fantasy Football OS — full onchain fantasy league with AI agents + NFTs, built on X Layer for the OKX X Cup hackathon.",
+  "packageManager": "pnpm@9.15.9",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "compile": "turbo run compile",
+    "web": "pnpm --filter @aff/web dev",
+    "deploy:testnet": "pnpm --filter @aff/contracts deploy:testnet",
+    "deploy:mainnet": "pnpm --filter @aff/contracts deploy:mainnet"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.3"
+  }
+}
