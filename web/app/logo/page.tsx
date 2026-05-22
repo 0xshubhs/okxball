@@ -16,11 +16,10 @@ export default function LogoPage() {
           Logo
         </h1>
         <p className="mt-3 max-w-2xl text-white/55">
-          The mark is a football panel drawn as a passing network: a neon{" "}
-          <span className="text-neon">agent</span> node at the centre wired to the
-          players on the pentagon — the captain lit in{" "}
-          <span className="text-gold">gold</span>. A squad orchestrated by an
-          agent, on-chain, in a single glyph.
+          Two colours only. The mark is a football panel drawn as an agent
+          network: one <span className="text-red">red</span> agent node at the
+          centre wired to the white squad on the pentagon — a team orchestrated
+          by an agent, on-chain, in a single glyph.
         </p>
       </header>
 
@@ -90,16 +89,16 @@ export default function LogoPage() {
       <section className="mb-12">
         <h2 className="mb-4 font-display text-2xl font-bold">Colors</h2>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <ColorTile name="neon · agent" hex="#3ef08b" />
-          <ColorTile name="gold · captain" hex="#ffd35c" />
-          <ColorTile name="electric · accent" hex="#2dd4ff" />
-          <ColorTile name="pitch · bg" hex="#020806" />
+          <ColorTile name="red · agent" hex="#ff2d2d" />
+          <ColorTile name="white · squad" hex="#ffffff" />
+          <ColorTile name="black · base" hex="#070708" />
+          <ColorTile name="muted" hex="#8a8a93" />
         </div>
       </section>
 
       <section className="text-xs text-white/40">
-        <Link href="/dashboard" className="hover:text-neon">
-          See the brand in context on the dashboard →
+        <Link href="/pitch" className="hover:text-red">
+          See the brand in context on the pitch deck →
         </Link>
       </section>
     </div>

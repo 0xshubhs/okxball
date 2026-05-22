@@ -6,7 +6,7 @@ export default function StatBar({
   label,
   value,
   max = 100,
-  color = "#ff4d1c",
+  color = "#ff2d2d",
 }: {
   label: string;
   value: number;

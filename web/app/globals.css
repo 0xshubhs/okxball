@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  --bg: #0a0c0b;
+  --bg: #070708;
   --font-display: "Oswald", system-ui, -apple-system, sans-serif;
   --font-sans: "Archivo", system-ui, -apple-system, sans-serif;
   --font-mono: "Space Mono", ui-monospace, monospace;
@@ -20,20 +20,20 @@ body {
 }
 
 body {
-  color: #f4efe2;
+  color: #ffffff;
   font-family: var(--font-sans);
   background-color: var(--bg);
-  /* tactics-board grid — flat, no gradient orbs */
+  /* subtle top-to-bottom black wash + faint red flare at the very top edge */
   background-image:
-    linear-gradient(rgba(244, 239, 226, 0.022) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(244, 239, 226, 0.022) 1px, transparent 1px);
-  background-size: 46px 46px;
-  background-position: center top;
+    linear-gradient(180deg, #0c0c0e 0%, #070708 38%),
+    radial-gradient(60% 22% at 50% -2%, rgba(255, 45, 45, 0.12), transparent 70%);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
 ::selection {
-  background: #ff4d1c;
-  color: #0a0c0b;
+  background: #ff2d2d;
+  color: #ffffff;
 }
 
 ::-webkit-scrollbar {
@@ -41,11 +41,13 @@ body {
   height: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: #101413;
+  background: #0c0c0e;
 }
 ::-webkit-scrollbar-thumb {
-  background: #ff4d1c;
-  border: 2px solid #101413;
+  background: #ff2d2d;
+  border-radius: 999px;
+  border: 2px solid #0c0c0e;
+  background-clip: content-box;
 }
 
 @layer base {
@@ -59,64 +61,59 @@ body {
 }
 
 @layer components {
-  /* Solid panel — replaces glassmorphism */
+  /* Sleek dark card */
   .glass,
   .panel {
-    @apply rounded-lg border border-ink-700 bg-ink-900;
-    box-shadow: 0 2px 0 0 rgba(0, 0, 0, 0.5);
+    @apply rounded-2xl border border-white/[0.07] bg-ink-900;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
   }
 
-  /* Hero / feature card with a hard offset shadow */
   .card-pop {
-    @apply rounded-lg border-2 border-ink-700 bg-ink-900;
-    box-shadow: 6px 6px 0 0 #000;
+    @apply rounded-3xl border border-white/[0.07] bg-ink-900;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.6);
   }
 
   .glass-hover {
-    @apply transition-transform duration-150 hover:-translate-y-0.5 hover:border-flame/60;
+    @apply transition duration-200 hover:-translate-y-0.5 hover:border-red/40;
   }
 
-  /* Chunky primary button */
+  /* Pill primary button — white on red */
   .btn-neon {
-    @apply inline-flex items-center justify-center gap-2 rounded-md border-2 border-ink-950 bg-flame px-5 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-ink-950 transition;
-    box-shadow: 3px 3px 0 0 #000;
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-red px-5 py-3 text-sm font-semibold text-white transition;
+    box-shadow: 0 8px 24px rgba(255, 45, 45, 0.35);
   }
   .btn-neon:hover {
-    @apply -translate-y-0.5 brightness-105;
-    box-shadow: 4px 5px 0 0 #000;
+    @apply -translate-y-0.5 brightness-110;
   }
   .btn-neon:active {
-    @apply translate-x-0.5 translate-y-0.5;
-    box-shadow: 1px 1px 0 0 #000;
+    @apply translate-y-0 brightness-95;
   }
   .btn-neon:disabled {
     @apply cursor-not-allowed opacity-50;
-    box-shadow: 3px 3px 0 0 #000;
+    box-shadow: none;
   }
 
-  /* Outline button */
+  /* Pill outline button */
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 rounded-md border-2 border-ink-600 bg-transparent px-5 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-cream transition hover:border-flame hover:text-flame;
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-white transition hover:border-white/35 hover:bg-white/[0.08];
   }
 
   .chip {
-    @apply inline-flex items-center gap-1.5 rounded-md border border-ink-700 bg-ink-850 px-2.5 py-1 font-mono text-[11px] uppercase tracking-wide text-bone;
+    @apply inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-xs font-medium text-bone;
   }
 
   /* Eyebrow / kicker label */
   .label-mono,
   .eyebrow {
-    @apply font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-flame;
+    @apply font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-red;
   }
 
-  /* Section number badge, editorial */
   .num-tag {
     @apply font-mono text-xs font-bold text-ink-600;
   }
 
-  /* "gradient" heading now a solid brand color (no gradient tell) */
   .heading-gradient {
-    @apply text-flame;
+    @apply text-red;
   }
 }
 
@@ -125,36 +122,39 @@ body {
     text-wrap: balance;
   }
 
-  /* Pitch / formation grass stripes */
   .pitch-stripes {
     background-image: repeating-linear-gradient(
       0deg,
-      rgba(22, 214, 114, 0.06) 0px,
-      rgba(22, 214, 114, 0.06) 44px,
-      rgba(22, 214, 114, 0.02) 44px,
-      rgba(22, 214, 114, 0.02) 88px
+      rgba(255, 255, 255, 0.035) 0px,
+      rgba(255, 255, 255, 0.035) 44px,
+      rgba(255, 255, 255, 0.012) 44px,
+      rgba(255, 255, 255, 0.012) 88px
     );
   }
 
   .shimmer-text {
-    @apply text-cream;
+    @apply text-white;
   }
 
-  /* Scoreboard numerals */
+  /* Big scoreboard numerals */
   .scoreboard {
-    font-family: var(--font-mono);
+    font-family: var(--font-display);
     font-variant-numeric: tabular-nums;
-    letter-spacing: 0.02em;
+    letter-spacing: 0;
   }
 
-  /* Diagonal hazard stripe — used on banners */
+  /* LIVE pill */
+  .live-pill {
+    @apply inline-flex items-center gap-1.5 rounded-full bg-red px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white;
+  }
+
   .hazard {
     background-image: repeating-linear-gradient(
       -45deg,
-      #ff4d1c,
-      #ff4d1c 10px,
-      #0a0c0b 10px,
-      #0a0c0b 20px
+      #ff2d2d,
+      #ff2d2d 10px,
+      #070708 10px,
+      #070708 20px
     );
   }
 }

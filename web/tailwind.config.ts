@@ -1,9 +1,9 @@
 import type { Config } from "tailwindcss";
 
 /**
- * "Matchday Broadcast" design system.
- * Bold condensed type, solid panels with hard edges, flame-orange on warm ink.
- * Deliberately NOT the dark/neon/glassmorphism default.
+ * "Red Zone" design system — modern red + black mobile sports app.
+ * Deep black surfaces, vivid red accents, white type, rounded cards,
+ * pill buttons, bold condensed numerals. (ref: live-match / player-profile UI)
  */
 const config: Config = {
   content: [
@@ -13,36 +13,43 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Warm ink base (stadium at night, not pure black)
+        // Near-black surface ramp
         ink: {
-          950: "#0a0c0b",
-          900: "#101413",
-          850: "#151a18",
-          800: "#1b211f",
-          700: "#262e2b",
-          600: "#36403c",
+          950: "#070708",
+          900: "#0c0c0e",
+          850: "#141417",
+          800: "#1a1a1e",
+          700: "#26262c",
+          600: "#3a3a42",
         },
-        // Kept the `pitch` name so existing markup maps onto the new ink scale
+        // Kept the `pitch` name so existing markup maps onto the black ramp
         pitch: {
-          950: "#0a0c0b",
-          900: "#101413",
-          800: "#1b211f",
-          700: "#262e2b",
+          950: "#070708",
+          900: "#0c0c0e",
+          800: "#1a1a1e",
+          700: "#26262c",
         },
-        cream: "#f4efe2", // primary text
-        bone: "#cdc7b8", // muted text
-        // Brand accents — flame is primary (NOT neon green)
-        flame: "#ff4d1c",
-        "flame-soft": "#ff7a4d",
-        turf: "#16d672", // green used sparingly, as the pitch nod
+        cream: "#ffffff", // primary text (now white)
+        bone: "#8a8a93", // muted text
+        // Brand red is primary
+        red: {
+          DEFAULT: "#ff2d2d",
+          400: "#ff5a5a",
+          500: "#ff2d2d",
+          600: "#e11414",
+          700: "#b50f0f",
+        },
+        flame: "#ff2d2d",
+        "flame-soft": "#ff5a5a",
+        turf: "#16d672",
         gold: "#ffc233",
         cobalt: "#3b6bff",
         magenta: "#ff2e7e",
-        // Aliases so legacy class names keep working with the new palette
+        // Legacy aliases now mapped to red
         neon: {
-          DEFAULT: "#ff4d1c",
-          soft: "#ff7a4d",
-          dim: "#c23a12",
+          DEFAULT: "#ff2d2d",
+          soft: "#ff5a5a",
+          dim: "#b50f0f",
         },
         electric: "#3b6bff",
       },
@@ -52,13 +59,14 @@ const config: Config = {
         mono: ["var(--font-mono)", "Space Mono", "ui-monospace", "monospace"],
       },
       boxShadow: {
-        // Hard offset shadows — tactile, print-like, no blur
-        hard: "4px 4px 0 0 #000",
-        "hard-lg": "7px 7px 0 0 #000",
-        "hard-flame": "5px 5px 0 0 #ff4d1c",
-        // Back-compat aliases for legacy class names
-        neon: "3px 3px 0 0 #ff4d1c",
-        glass: "0 2px 0 0 rgba(0,0,0,0.5)",
+        // Soft glows / lifts (sleek app feel)
+        red: "0 10px 30px rgba(255,45,45,0.35)",
+        "red-sm": "0 6px 18px rgba(255,45,45,0.30)",
+        lift: "0 12px 40px rgba(0,0,0,0.55)",
+        // Back-compat aliases
+        neon: "0 10px 30px rgba(255,45,45,0.35)",
+        glass: "0 12px 40px rgba(0,0,0,0.45)",
+        hard: "0 8px 24px rgba(0,0,0,0.5)",
       },
       keyframes: {
         ticker: {
@@ -70,8 +78,8 @@ const config: Config = {
           "50%": { transform: "translateY(-6px)" },
         },
         pulseDot: {
-          "0%,100%": { opacity: "1" },
-          "50%": { opacity: "0.3" },
+          "0%,100%": { opacity: "1", transform: "scale(1)" },
+          "50%": { opacity: "0.35", transform: "scale(0.85)" },
         },
         shimmer: {
           "0%": { backgroundPosition: "-200% 0" },
@@ -79,7 +87,7 @@ const config: Config = {
         },
       },
       animation: {
-        ticker: "ticker 30s linear infinite",
+        ticker: "ticker 32s linear infinite",
         float: "float 5s ease-in-out infinite",
         pulseDot: "pulseDot 1.4s ease-in-out infinite",
         pulseGlow: "pulseDot 1.4s ease-in-out infinite",
