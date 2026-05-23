@@ -1,6 +1,10 @@
 import { NextRequest } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
-import { FORMATIONS, type FormationName, type Player, type Position } from "@/lib/data";
+import {
+  FORMATIONS,
+  type FormationName,
+  type Player,
+  type Position,
+} from "@/lib/data";
 import {
   parsePrompt,
   projectedPoints,
@@ -13,74 +17,38 @@ import {
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-const MODEL = "claude-opus-4-7";
+// Self-hosted OpenAI-compatible LLM (RunPod vLLM). No API key required.
+const AI_BASE_URL =
+  process.env.AI_BASE_URL || "https://0ziii4vt975sjd-8000.proxy.runpod.net";
+const AI_MODEL = process.env.AI_MODEL || "Qwen/Qwen3-VL-8B-Instruct";
+const AI_API_KEY = process.env.AI_API_KEY; // optional Bearer token
+
 const FORMATION_NAMES = Object.keys(FORMATIONS) as FormationName[];
 
 type Body = { mode: "auto" | "prompt"; prompt: string; roster: Player[] };
 
-const SYSTEM_RULES = `You are the autonomous manager for an onchain fantasy football league ("Agentic Fantasy Football OS" on X Layer).
+const SYSTEM_RULES = `You are the autonomous manager for an onchain Fantasy World Cup league ("Agentic Fantasy Football OS" on X Layer).
 
-Your job: pick the optimal starting XI from the manager's owned Player NFTs.
+Your job: pick the optimal starting XI from the manager's owned national-team Player NFTs.
 
 Scoring intuition (higher = better expected points):
-- rating (overall quality), recent form (1-10), and rarity all raise output.
+- rating (overall), recent form (1-10), and rarity all raise output.
 - Easier fixtures (lower difficulty 1-5) raise output; hard fixtures lower it.
-- The captain scores DOUBLE — captain your highest-projection attacker unless the manager says otherwise.
+- The captain scores DOUBLE — captain your highest-projection attacker unless told otherwise.
 
 Hard rules:
 - Pick ONLY from the listed owned Player NFTs (use their exact id).
 - Fill EVERY slot of your chosen formation with exactly one player whose position matches the slot's position.
 - Never use the same player in two slots.
-- If a manager instruction is given, honor it (e.g. "all-out attack" → favor FWD/MID and aggressive shape; "park the bus" → favor DEF/GK and a defensive shape; "on form" → weight recent form over rating).
-
-Process:
-- Reason concisely, step by step, about formation choice, key picks, and the captain.
-- Then call the submit_xi tool EXACTLY ONCE with the final XI. Do not call it more than once.`;
-
-const submitXiTool: Anthropic.Tool = {
-  name: "submit_xi",
-  description:
-    "Submit the final optimal starting XI. Call exactly once after reasoning.",
-  input_schema: {
-    type: "object",
-    properties: {
-      formation: {
-        type: "string",
-        enum: FORMATION_NAMES,
-        description: "The chosen formation.",
-      },
-      picks: {
-        type: "array",
-        description:
-          "One entry per slot of the chosen formation. slotId must be a slot of that formation; playerId must be an owned player whose position matches the slot.",
-        items: {
-          type: "object",
-          properties: {
-            slotId: { type: "string" },
-            playerId: { type: "string" },
-          },
-          required: ["slotId", "playerId"],
-        },
-      },
-      captainId: {
-        type: "string",
-        description: "playerId of the captain (must be one of the picks). Scores 2x.",
-      },
-      viceId: { type: "string", description: "playerId of the vice-captain." },
-    },
-    required: ["formation", "picks", "captainId"],
-  },
-};
+- Honor any manager instruction (e.g. "all-out attack" -> favour FWD/MID; "park the bus" -> favour DEF/GK; "on form" -> weight recent form).`;
 
 export async function POST(req: NextRequest) {
   const { mode, prompt, roster } = (await req.json()) as Body;
-  const apiKey = process.env.ANTHROPIC_API_KEY;
   const encoder = new TextEncoder();
   let cancelled = false;
 
   const stream = new ReadableStream({
     async start(controller) {
-      // Guarded enqueue: a client abort closes the stream; never throw past it.
       const send = (obj: unknown) => {
         if (cancelled) return;
         try {
@@ -98,31 +66,21 @@ export async function POST(req: NextRequest) {
       };
 
       try {
-        if (!apiKey) {
-          send({ type: "meta", engine: "heuristic" });
-          const plan = runAgent(roster, mode, prompt);
-          for (const s of plan.steps) {
-            if (cancelled) break;
-            send({ type: "step", step: s });
-            await sleep(260);
-          }
-          send({ type: "plan", plan });
-          close();
-          return;
-        }
-
-        send({ type: "meta", engine: "llm" });
-        await runLlm({ apiKey, mode, prompt, roster, send, shouldStop: () => cancelled });
+        send({ type: "meta", engine: "llm", model: AI_MODEL });
+        await runLlm({ mode, prompt, roster, send, shouldStop: () => cancelled });
         close();
       } catch (err) {
-        // Any LLM failure degrades to the deterministic heuristic.
+        // LLM unreachable / bad output -> deterministic heuristic.
         const plan = runAgent(roster, mode, prompt);
         send({
           type: "meta",
           engine: "heuristic-fallback",
           error: err instanceof Error ? err.message : "agent error",
         });
-        for (const s of plan.steps) send({ type: "step", step: s });
+        for (const s of plan.steps) {
+          if (cancelled) break;
+          send({ type: "step", step: s });
+        }
         send({ type: "plan", plan });
         close();
       }
@@ -141,21 +99,18 @@ export async function POST(req: NextRequest) {
 }
 
 async function runLlm({
-  apiKey,
   mode,
   prompt,
   roster,
   send,
   shouldStop,
 }: {
-  apiKey: string;
   mode: "auto" | "prompt";
   prompt: string;
   roster: Player[];
   send: (obj: unknown) => void;
   shouldStop: () => boolean;
 }) {
-  const client = new Anthropic({ apiKey });
   const weights: AgentWeights =
     mode === "prompt" && prompt.trim()
       ? parsePrompt(prompt).weights
@@ -164,93 +119,71 @@ async function runLlm({
   const rosterTable = roster
     .map(
       (p) =>
-        `- id=${p.id} | ${p.name} (${p.position}) | rating ${p.rating} | form ${p.form}/10 | rarity ${p.rarity} | next vs ${p.fixtureOpponent} (difficulty ${p.fixtureDifficulty}/5) | ${p.club}`
+        `- id=${p.id} | ${p.name} (${p.position}) | ${p.club} | rating ${p.rating} | form ${p.form}/10 | rarity ${p.rarity} | next vs ${p.fixtureOpponent} (difficulty ${p.fixtureDifficulty}/5)`
     )
     .join("\n");
   const slotSpec = FORMATION_NAMES.map(
     (f) => `${f}: ${FORMATIONS[f].map((s) => `${s.id}(${s.position})`).join(", ")}`
   ).join("\n");
 
-  // Stable, reusable content first (cached); volatile instruction goes in messages.
-  const system: Anthropic.TextBlockParam[] = [
-    { type: "text", text: SYSTEM_RULES },
-    { type: "text", text: `FORMATIONS AND SLOTS:\n${slotSpec}` },
-    {
-      type: "text",
-      text: `OWNED PLAYER NFTs (pick only from these):\n${rosterTable}`,
-      cache_control: { type: "ephemeral" },
-    },
-  ];
+  const system = `${SYSTEM_RULES}
 
-  const userText =
+FORMATIONS AND SLOTS:
+${slotSpec}
+
+OWNED PLAYER NFTs (pick only from these):
+${rosterTable}
+
+Respond with ONLY a JSON object (no markdown fences, no prose) of this exact shape:
+{"formation":"<one formation name>","picks":[{"slotId":"<slot id>","playerId":"<player id>"}],"captainId":"<player id>","viceId":"<player id>","steps":["<3-6 short strings explaining your reasoning>"]}
+"picks" must contain exactly one entry per slot of the chosen formation.`;
+
+  const user =
     mode === "prompt" && prompt.trim()
-      ? `Manager instruction: "${prompt.trim()}"\n\nBuild the optimal XI honoring this instruction, then call submit_xi.`
-      : `AUTO mode — no manager instruction. Build the optimal XI purely from the stats, then call submit_xi.`;
+      ? `Manager instruction: "${prompt.trim()}". Build the optimal XI honoring it.`
+      : `AUTO mode — no instruction. Build the optimal XI purely from the stats.`;
 
   send({
     type: "step",
     step: {
       kind: "scan",
-      text: `Reading live oracle stats for ${roster.length} Player NFTs…`,
+      text: `Reading live oracle stats for ${roster.length} Player NFTs via ${AI_MODEL.split("/").pop()}…`,
     },
   });
 
-  const llm = client.messages.stream({
-    model: MODEL,
-    max_tokens: 4000,
-    thinking: { type: "adaptive", display: "summarized" },
-    system,
-    tools: [submitXiTool],
-    // Forced tool_choice is incompatible with thinking — instruct via system instead.
-    tool_choice: { type: "auto" },
-    messages: [{ role: "user", content: userText }],
+  const res = await fetch(`${AI_BASE_URL}/v1/chat/completions`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(AI_API_KEY ? { Authorization: `Bearer ${AI_API_KEY}` } : {}),
+    },
+    body: JSON.stringify({
+      model: AI_MODEL,
+      messages: [
+        { role: "system", content: system },
+        { role: "user", content: user },
+      ],
+      temperature: 0.4,
+      max_tokens: 1500,
+    }),
+    signal: AbortSignal.timeout(45000),
   });
+  if (!res.ok) throw new Error(`LLM ${res.status}`);
 
-  // Stream summarized reasoning as bite-sized steps split on sentence/line boundaries.
-  let buf = "";
-  const flush = (force = false) => {
-    let idx: number;
-    while ((idx = boundary(buf)) !== -1) {
-      const chunk = buf.slice(0, idx + 1).trim();
-      buf = buf.slice(idx + 1);
-      if (chunk.length > 3) send({ type: "step", step: { kind: "decision", text: chunk } });
-    }
-    if (force && buf.trim().length > 3) {
-      send({ type: "step", step: { kind: "decision", text: buf.trim() } });
-      buf = "";
-    }
-  };
+  const data = await res.json();
+  const content: string = data?.choices?.[0]?.message?.content ?? "";
+  const parsed = extractJson(content);
+  if (!parsed) throw new Error("LLM returned no parseable lineup");
 
-  for await (const ev of llm) {
-    if (shouldStop()) {
-      llm.abort();
-      return;
-    }
-    if (ev.type === "content_block_delta") {
-      if (ev.delta.type === "thinking_delta") {
-        buf += ev.delta.thinking;
-        flush();
-      } else if (ev.delta.type === "text_delta") {
-        buf += ev.delta.text;
-        flush();
-      }
+  for (const s of (parsed.steps as string[] | undefined) ?? []) {
+    if (shouldStop()) return;
+    if (typeof s === "string" && s.trim().length > 2) {
+      send({ type: "step", step: { kind: "decision", text: s.trim() } });
+      await sleep(220);
     }
   }
-  flush(true);
 
-  const final = await llm.finalMessage();
-  const toolUse = final.content.find((b) => b.type === "tool_use");
-  if (!toolUse || toolUse.type !== "tool_use") {
-    throw new Error("agent did not return a lineup");
-  }
-
-  const plan = buildPlan(
-    toolUse.input as ToolInput,
-    roster,
-    weights,
-    mode,
-    prompt
-  );
+  const plan = buildPlan(parsed, roster, weights, mode, prompt);
 
   const cap = roster.find((p) => p.id === plan.captainId);
   const vice = roster.find((p) => p.id === plan.viceId);
@@ -273,16 +206,17 @@ async function runLlm({
   send({ type: "plan", plan });
 }
 
-type ToolInput = {
+type PlanInput = {
   formation?: string;
   picks?: { slotId: string; playerId: string }[];
   captainId?: string;
   viceId?: string;
+  steps?: string[];
 };
 
-/** Validate the model's tool output, repairing any gaps with the heuristic. */
+/** Validate the model's output, repairing any gaps with the heuristic. */
 function buildPlan(
-  input: ToolInput,
+  input: PlanInput,
   roster: Player[],
   weights: AgentWeights,
   mode: "auto" | "prompt",
@@ -300,8 +234,8 @@ function buildPlan(
   const used = new Set<string>();
 
   for (const pick of input.picks ?? []) {
-    const slot = slots.find((s) => s.id === pick.slotId);
-    const p = byId.get(pick.playerId);
+    const slot = slots.find((s) => s.id === pick?.slotId);
+    const p = pick ? byId.get(pick.playerId) : undefined;
     if (slot && p && p.position === slot.position && !used.has(p.id) && !lineup[slot.id]) {
       lineup[slot.id] = p.id;
       used.add(p.id);
@@ -343,7 +277,6 @@ function buildPlan(
     starters.reduce((t, p) => t + projectedPoints(p, weights), 0) +
     (captain ? projectedPoints(captain, weights) : 0);
 
-  // If the model produced nothing usable, defer entirely to the heuristic.
   if (Object.keys(lineup).length === 0) {
     return runAgent(roster, mode, prompt);
   }
@@ -359,11 +292,23 @@ function buildPlan(
   };
 }
 
-function boundary(s: string): number {
-  const nl = s.indexOf("\n");
-  const dot = s.indexOf(". ");
-  const cands = [nl, dot >= 0 ? dot + 1 : -1].filter((x) => x >= 0);
-  return cands.length ? Math.min(...cands) : -1;
+/** Parse a JSON object from model output, tolerating fences / surrounding prose. */
+function extractJson(s: string): PlanInput | null {
+  try {
+    return JSON.parse(s) as PlanInput;
+  } catch {
+    /* try to slice out the object */
+  }
+  const start = s.indexOf("{");
+  const end = s.lastIndexOf("}");
+  if (start >= 0 && end > start) {
+    try {
+      return JSON.parse(s.slice(start, end + 1)) as PlanInput;
+    } catch {
+      /* give up */
+    }
+  }
+  return null;
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));

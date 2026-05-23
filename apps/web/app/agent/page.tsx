@@ -57,6 +57,7 @@ export default function AgentPage() {
   const [running, setRunning] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [engine, setEngine] = useState<string | null>(null);
+  const [model, setModel] = useState<string | null>(null);
   const runIdRef = useRef(0);
   const { address, isConnected } = useAccount();
   const deployed = useDeployed();
@@ -127,7 +128,10 @@ export default function AgentPage() {
           buf = buf.slice(nl + 1);
           if (!line) continue;
           const msg = JSON.parse(line);
-          if (msg.type === "meta") setEngine(msg.engine);
+          if (msg.type === "meta") {
+            setEngine(msg.engine);
+            setModel(msg.model ?? null);
+          }
           else if (msg.type === "step") {
             collected.push(msg.step);
             setPlan(partial());
@@ -156,7 +160,7 @@ export default function AgentPage() {
 
   const engineLabel =
     engine === "llm"
-      ? "Claude Opus 4.7"
+      ? `${(model ?? "RunPod").split("/").pop()} · RunPod`
       : engine
         ? "Heuristic engine"
         : null;
