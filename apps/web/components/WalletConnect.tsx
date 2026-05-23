@@ -22,7 +22,7 @@ function short(addr?: string) {
 export default function WalletConnect() {
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
-  const { connect, connectors, isPending, error } = useConnect();
+  const { connect, connectAsync, connectors, isPending, error } = useConnect();
   const { disconnect } = useDisconnect();
   const { switchChain } = useSwitchChain();
   const { data: balance } = useBalance({ address });
@@ -39,18 +39,36 @@ export default function WalletConnect() {
     return () => document.removeEventListener("mousedown", onClick);
   }, []);
 
-  const okx = connectors.find((c) => c.id === "okxwallet") ?? connectors[0];
   const onWrongChain = isConnected && !SUPPORTED.includes(chainId as never);
 
-  function handleConnect() {
-    const hasOkx =
-      typeof window !== "undefined" &&
-      (window as unknown as { okxwallet?: unknown }).okxwallet;
-    if (!hasOkx) {
-      window.open("https://www.okx.com/web3", "_blank");
-      return;
+  async function handleConnect() {
+    const w =
+      typeof window !== "undefined"
+        ? (window as unknown as { okxwallet?: unknown; ethereum?: unknown })
+        : undefined;
+    const hasOkxNs = !!w?.okxwallet;
+
+    const okxConnectC = connectors.find((c) => c.id === "okxConnect");
+    // Injected fallback: window.okxwallet → EIP-6963 OKX → generic injected.
+    const fallback =
+      (hasOkxNs ? connectors.find((c) => c.id === "okxwallet") : undefined) ||
+      connectors.find((c) => c.id !== "okxwallet" && /okx/i.test(c.name)) ||
+      connectors.find((c) => c.id === "injected") ||
+      connectors.find((c) => c.type === "injected") ||
+      connectors[0];
+
+    // Try the OKX Connect SDK modal first (extension + mobile QR); if it
+    // fails/cancels, fall back to the injected extension so you're never stuck.
+    if (okxConnectC) {
+      try {
+        await connectAsync({ connector: okxConnectC, chainId: defaultChain.id });
+        return;
+      } catch {
+        /* fall through to injected */
+      }
     }
-    connect({ connector: okx, chainId: defaultChain.id });
+    if (fallback) connect({ connector: fallback, chainId: defaultChain.id });
+    else window.open("https://www.okx.com/web3", "_blank");
   }
 
   if (!isConnected) {
