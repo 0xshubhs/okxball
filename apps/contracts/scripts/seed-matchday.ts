@@ -16,6 +16,7 @@ import { resolve } from "path";
  */
 const LEAGUE_ID = 1n;
 const ZERO = "0x0000000000000000000000000000000000000000";
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 function netKey(): "mainnet" | "testnet" | null {
   if (network.name === "xlayer") return "mainnet";
@@ -71,11 +72,13 @@ async function main() {
   const gw: bigint = lg.gameweek ?? lg[1];
   console.log(`League #${LEAGUE_ID}: entry ${ethers.formatEther(entryFee)} OKB, GW ${gw}\n`);
 
-  // 1) mint 3 common players (token ids start at nextId)
+  // 1) mint N common players (default 1 — keeps the testnet faucet budget safe;
+  //    override with SEED_MINTS for a fuller lineup once funded)
+  const N = Math.max(1, Number(process.env.SEED_MINTS ?? 1));
   const price: bigint = await playerNFT.mintPrice(0);
   const startId = Number(await playerNFT.nextId());
   const ids: number[] = [];
-  for (let k = 0; k < 3; k++) {
+  for (let k = 0; k < N; k++) {
     const tx = await playerNFT.mint(0, { value: price });
     await tx.wait();
     ids.push(startId + k);
@@ -96,16 +99,27 @@ async function main() {
   await repTx.wait();
   console.log(`report ${link(repTx.hash)}`);
 
-  // 4) lock + settle (splits the pool 50/30/20; 1 manager -> 100%)
+  // 4) lock, then settle ONLY once the RPC confirms the lock landed. X Layer's
+  //    load-balanced RPC can serve a stale read to settle's gas pre-flight
+  //    ("not locked") right after lock mines — poll the state to avoid it.
   const lockTx = await league.lock(LEAGUE_ID);
   await lockTx.wait();
   console.log(`lock   ${link(lockTx.hash)}`);
+  for (let i = 0; i < 20; i++) {
+    const lg2 = await league.leagues(LEAGUE_ID);
+    if (lg2.locked ?? lg2[3]) break;
+    await sleep(1500);
+  }
   const setTx = await league.settle(LEAGUE_ID);
   await setTx.wait();
   console.log(`settle ${link(setTx.hash)}`);
 
   const score = await league.scoreOf(LEAGUE_ID, me.address);
-  const claimable: bigint = await vault.claimable(me.address);
+  let claimable: bigint = await vault.claimable(me.address);
+  for (let i = 0; i < 20 && claimable === 0n; i++) {
+    await sleep(1500);
+    claimable = await vault.claimable(me.address);
+  }
   console.log(`\nScore: ${score}  ·  Claimable: ${ethers.formatEther(claimable)} OKB`);
 
   // 5) claim winnings

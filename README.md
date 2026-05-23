@@ -8,16 +8,26 @@ Built for the **OKX X Cup Hackathon** (World Cup theme · X Layer). Tracks: **Ga
 
 ## 🔗 On-chain proof (X Layer)
 
-> Fill these in after running `pnpm deploy:testnet` / `:mainnet` (the deploy script writes them automatically to `packages/shared/src/deployments.json` and `web/.env.local`). Until then the app runs in clearly-labelled **Demo** mode.
+**Live on X Layer testnet (chainId 1952).** Deployed + a full matchday verified on-chain (mint → join → submitLineup → reportPoints → lock → settle → claim).
 
-| Contract | Address | OKLink |
-| --- | --- | --- |
-| PlayerNFT (ERC-721) | `0x…` | [verify](https://www.oklink.com/x-layer) |
-| ScoringOracle | `0x…` | [verify](https://www.oklink.com/x-layer) |
-| FantasyLeague | `0x…` | [verify](https://www.oklink.com/x-layer) |
-| PayoutVault | `0x…` | [verify](https://www.oklink.com/x-layer) |
+| Contract | Address (X Layer testnet) |
+| --- | --- |
+| PlayerNFT (ERC-721) | [`0x08a25a794639a6cA03b0A7C655B2c36d82fF144a`](https://www.oklink.com/x-layer-testnet/address/0x08a25a794639a6cA03b0A7C655B2c36d82fF144a) |
+| ScoringOracle | [`0x9d3ccbE19D1A6e37A9F67868ae7eE8452069d697`](https://www.oklink.com/x-layer-testnet/address/0x9d3ccbE19D1A6e37A9F67868ae7eE8452069d697) |
+| FantasyLeague | [`0x3297baE90BbD190de4F275cEAE71568428e794f0`](https://www.oklink.com/x-layer-testnet/address/0x3297baE90BbD190de4F275cEAE71568428e794f0) |
+| PayoutVault | [`0x30E7EC0E595091adA9c8c85A969c6bA9a995e4D6`](https://www.oklink.com/x-layer-testnet/address/0x30E7EC0E595091adA9c8c85A969c6bA9a995e4D6) |
 
-Sample matchday flow (tx hashes): mint → train → joinLeague → submitLineup → reportPoints → settle → claim — `0x…`
+Sample matchday flow (verified txs):
+[mint](https://www.oklink.com/x-layer-testnet/tx/0x152994a7785da050cc6850bb6f98464aba3d42c357459b406c9cbf619d44c8f1) ·
+[join](https://www.oklink.com/x-layer-testnet/tx/0xaa5e8f590ee0056f7f82111f8d1b4ee1f8ff6de78ac657796d67eead964dd0a8) ·
+[submitLineup](https://www.oklink.com/x-layer-testnet/tx/0x0b17bb53acb35889c0c423f8f52c9cb5b5097992ab7c0ed482447244667e0c9e) ·
+[reportPoints](https://www.oklink.com/x-layer-testnet/tx/0xb5ebdf6d69c3906d1d50d1f0c8e4fe0c6d713dcafcd57680b55545e8f1bd177f) ·
+[lock](https://www.oklink.com/x-layer-testnet/tx/0x710085c1f58a359a9d32dc615236e2a0336d5c5596f3f58129c29c3b4515e621) ·
+[settle](https://www.oklink.com/x-layer-testnet/tx/0xe9499ee1f9630e8f14a8fbe900f3a810a9439a6320be154ad61f0b92ec582520) ·
+[claim](https://www.oklink.com/x-layer-testnet/tx/0xa48811477aa286854bc28b10b40e5169c0bfb467b13238356c33575e8c5c48a3)
+
+> Mainnet (196): run `pnpm deploy:mainnet` before submission. The app reads the
+> live addresses from `packages/shared/src/deployments.json` and auto-flips Demo → Live.
 
 **Network:** X Layer is a Polygon CDK **zkEVM**; gas token **OKB**. Mainnet `chainId 196`, testnet `chainId 1952` ("terigon"). See [`apps/contracts/DEPLOY.md`](apps/contracts/DEPLOY.md).
 
