@@ -165,7 +165,7 @@ export const PLAYERS: Player[] = [
   {
     id: "p3", tokenId: 3, name: "Diego Sol", club: "Spain", country: "Spain", flag: "🇪🇸",
     position: "FWD", rating: 88, rarity: "epic", level: 4, xp: 90, xpToNext: 350, form: 7,
-    price: 2.8, fixtureOpponent: "GER", fixtureDifficulty: 3, owned: false, accent: "#ff4d8d",
+    price: 2.8, fixtureOpponent: "GER", fixtureDifficulty: 3, owned: true, accent: "#ff4d8d",
     stats: mkStats({ pace: 88, shooting: 87, passing: 80, defending: 35, physical: 80 }),
   },
   {
@@ -196,7 +196,7 @@ export const PLAYERS: Player[] = [
   {
     id: "p8", tokenId: 8, name: "Hiro Tanaka", club: "Japan", country: "Japan", flag: "🇯🇵",
     position: "MID", rating: 87, rarity: "epic", level: 4, xp: 140, xpToNext: 350, form: 7,
-    price: 2.6, fixtureOpponent: "CRO", fixtureDifficulty: 3, owned: false, accent: "#ff4d8d",
+    price: 2.6, fixtureOpponent: "CRO", fixtureDifficulty: 3, owned: true, accent: "#ff4d8d",
     stats: mkStats({ pace: 80, shooting: 78, passing: 89, defending: 74, physical: 76 }),
   },
   {
@@ -208,7 +208,7 @@ export const PLAYERS: Player[] = [
   {
     id: "p10", tokenId: 10, name: "Luca Ferri", club: "Italy", country: "Italy", flag: "🇮🇹",
     position: "MID", rating: 82, rarity: "common", level: 2, xp: 40, xpToNext: 250, form: 6,
-    price: 1.3, fixtureOpponent: "URU", fixtureDifficulty: 3, owned: false, accent: "#ffffff",
+    price: 1.3, fixtureOpponent: "URU", fixtureDifficulty: 3, owned: true, accent: "#ffffff",
     stats: mkStats({ pace: 76, shooting: 74, passing: 84, defending: 73, physical: 78 }),
   },
   // Defenders
@@ -233,7 +233,7 @@ export const PLAYERS: Player[] = [
   {
     id: "p14", tokenId: 14, name: "Pablo Cruz", club: "Spain", country: "Spain", flag: "🇪🇸",
     position: "DEF", rating: 84, rarity: "rare", level: 3, xp: 90, xpToNext: 300, form: 6,
-    price: 1.8, fixtureOpponent: "GER", fixtureDifficulty: 3, owned: false, accent: "#2dd4ff",
+    price: 1.8, fixtureOpponent: "GER", fixtureDifficulty: 3, owned: true, accent: "#2dd4ff",
     stats: mkStats({ pace: 80, shooting: 50, passing: 84, defending: 84, physical: 80 }),
   },
   {

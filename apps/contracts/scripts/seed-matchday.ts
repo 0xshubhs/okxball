@@ -5,16 +5,22 @@ import { resolve } from "path";
 /**
  * Seeds a complete, verifiable matchday on the DEPLOYED contracts so the demo
  * shows real on-chain activity end-to-end:
- *   mint × 3 → joinLeague → submitLineup → reportPoints → lock → settle → claim
+ *   createLeague → mint → joinLeague → submitLineup → reportPoints → lock → settle → claim
  *
  *   pnpm --filter @aff/contracts seed:testnet   (X Layer testnet, chainId 1952)
  *   pnpm --filter @aff/contracts seed:mainnet   (X Layer mainnet, chainId 196)
  *
- * Run AFTER deploying. Addresses are read from packages/shared/src/deployments.json
- * (written by the deploy script) or NEXT_PUBLIC_* env vars. The signer must be the
- * deployer (it owns the oracle/league and reports/locks/settles).
+ * Each run creates its OWN fresh league, so it's repeatable and never collides
+ * with an already-locked/settled league. Run AFTER deploying. Addresses are read
+ * from packages/shared/src/deployments.json (written by the deploy script) or
+ * NEXT_PUBLIC_* env vars. The signer must be the deployer (it owns the
+ * oracle/league and reports/locks/settles).
+ *
+ * NOTE: this seeds a self-contained proof league. For the LIVE demo flow where a
+ * user wallet joins/submits, use `open-league` + `settle-league` instead.
  */
-const LEAGUE_ID = 1n;
+const ENTRY_FEE = ethers.parseEther("0.02");
+const GAMEWEEK = 14n;
 const ZERO = "0x0000000000000000000000000000000000000000";
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -67,9 +73,13 @@ async function main() {
   const vault = await ethers.getContractAt("PayoutVault", a.payoutVault);
   const league = await ethers.getContractAt("FantasyLeague", a.fantasyLeague);
 
-  const lg = await league.leagues(LEAGUE_ID);
-  const entryFee: bigint = lg.entryFee ?? lg[0];
-  const gw: bigint = lg.gameweek ?? lg[1];
+  // Create a fresh league for this run so the seed is always repeatable.
+  const LEAGUE_ID: bigint = await league.nextLeagueId();
+  const entryFee = ENTRY_FEE;
+  const gw = GAMEWEEK;
+  const createTx = await league.createLeague(entryFee, gw);
+  await createTx.wait();
+  console.log(`create league #${LEAGUE_ID}  ${link(createTx.hash)}`);
   console.log(`League #${LEAGUE_ID}: entry ${ethers.formatEther(entryFee)} OKB, GW ${gw}\n`);
 
   // 1) mint N common players (default 1 — keeps the testnet faucet budget safe;

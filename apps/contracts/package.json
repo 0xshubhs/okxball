@@ -11,7 +11,11 @@
     "deploy:testnet": "hardhat run scripts/deploy.ts --network xlayerTestnet",
     "deploy:mainnet": "hardhat run scripts/deploy.ts --network xlayer",
     "seed:testnet": "hardhat run scripts/seed-matchday.ts --network xlayerTestnet",
-    "seed:mainnet": "hardhat run scripts/seed-matchday.ts --network xlayer"
+    "seed:mainnet": "hardhat run scripts/seed-matchday.ts --network xlayer",
+    "open-league:testnet": "hardhat run scripts/open-league.ts --network xlayerTestnet",
+    "open-league:mainnet": "hardhat run scripts/open-league.ts --network xlayer",
+    "settle:testnet": "hardhat run scripts/settle-league.ts --network xlayerTestnet",
+    "settle:mainnet": "hardhat run scripts/settle-league.ts --network xlayer"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",

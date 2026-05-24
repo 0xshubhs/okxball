@@ -28,9 +28,12 @@ import {
   useDeployed,
   useFantasyTx,
   useJoined,
+  usePublicClient,
+  readOwnedTokenIds,
   txJoinLeague,
   txSubmitLineup,
 } from "@/lib/onchain";
+import type { PublicClient } from "viem";
 
 const EXAMPLES = [
   "Go all-out attack and captain my hottest player",
@@ -62,24 +65,32 @@ export default function AgentPage() {
   const { address, isConnected } = useAccount();
   const deployed = useDeployed();
   const tx = useFantasyTx();
+  const publicClient = usePublicClient();
   const { data: hasJoined } = useJoined(address);
 
-  // Submit the agent's recommended XI straight on-chain: prompt → Claude → tx.
+  // Submit straight on-chain: prompt → agent → tx. The agent reasons over the
+  // demo squad on screen, but on-chain we submit the wallet's REAL minted NFTs
+  // (the demo tokenIds are illustrative and aren't owned by the connected
+  // wallet — submitLineup requires ownerOf == you).
   async function applySubmit() {
     if (!plan) return;
-    const captain = roster.find((p) => p.id === plan.captainId);
-    const tokenIds = Object.values(plan.lineup)
-      .map((pid) => roster.find((p) => p.id === pid)?.tokenId)
-      .filter((t): t is number => typeof t === "number");
-    if (deployed.fantasyLeague && isConnected && captain) {
+    if (deployed.fantasyLeague && isConnected && address && publicClient) {
       try {
         if (!hasJoined) {
           await tx.writeContractAsync(txJoinLeague());
           flash("Joined league ✓ — click again to submit your XI");
-        } else {
-          await tx.writeContractAsync(txSubmitLineup(tokenIds, captain.tokenId));
-          flash("Agent XI submitted on-chain ✓");
+          return;
         }
+        const owned = await readOwnedTokenIds(
+          publicClient as PublicClient,
+          address
+        );
+        if (owned.length === 0) {
+          flash("Mint a Player NFT first (Players tab), then submit");
+          return;
+        }
+        await tx.writeContractAsync(txSubmitLineup(owned, owned[0]));
+        flash(`Agent XI submitted on-chain ✓ (${owned.length} NFTs)`);
       } catch {
         /* surfaced by TxToast */
       }

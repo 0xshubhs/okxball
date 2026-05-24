@@ -17,12 +17,13 @@
 import { useMemo } from "react";
 import {
   useAccount,
+  usePublicClient,
   useReadContract,
   useReadContracts,
   useWaitForTransactionReceipt,
   useWriteContract,
 } from "wagmi";
-import { parseEther, type Address } from "viem";
+import { parseEther, type Address, type PublicClient } from "viem";
 import {
   CONTRACTS,
   isDeployed,
@@ -149,6 +150,44 @@ export const txClaim = (leagueId: number = OPENING_LEAGUE_ID) =>
     functionName: "claim",
     args: [BigInt(leagueId)],
   }) as const;
+
+/* ----------------------- owned tokens (on-chain) ------------------------- */
+
+/**
+ * The tokenIds an address actually owns on-chain, by scanning
+ * ownerOf(1..nextId-1). PlayerNFT is a plain ERC-721 (not Enumerable) and X
+ * Layer's RPC restricts eth_getLogs ranges, so we enumerate directly. Cheap at
+ * demo-scale supply. Used so the agent submits the wallet's REAL minted NFTs
+ * (not the illustrative demo tokenIds, which the wallet doesn't own).
+ */
+export async function readOwnedTokenIds(
+  client: PublicClient,
+  owner: Address
+): Promise<number[]> {
+  const next = (await client.readContract({
+    address: CONTRACTS.playerNFT,
+    abi: playerNFTAbi,
+    functionName: "nextId",
+  })) as bigint;
+  const total = Number(next);
+  const ids: number[] = [];
+  for (let id = 1; id < total; id++) {
+    try {
+      const o = (await client.readContract({
+        address: CONTRACTS.playerNFT,
+        abi: playerNFTAbi,
+        functionName: "ownerOf",
+        args: [BigInt(id)],
+      })) as Address;
+      if (o.toLowerCase() === owner.toLowerCase()) ids.push(id);
+    } catch {
+      /* token doesn't exist / burned — skip */
+    }
+  }
+  return ids;
+}
+
+export { usePublicClient };
 
 /* -------------------------------- reads ---------------------------------- */
 

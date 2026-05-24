@@ -46,6 +46,14 @@ export const playerNFTAbi = [
     inputs: [{ name: "tokenId", type: "uint256" }],
     outputs: [{ name: "", type: "address" }],
   },
+  {
+    // monotonic id counter — next token to be minted (so tokens are 1..nextId-1)
+    type: "function",
+    name: "nextId",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
+  },
 ] as const;
 
 export const fantasyLeagueAbi = [
