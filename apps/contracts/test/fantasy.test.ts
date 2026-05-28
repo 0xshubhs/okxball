@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 
-describe("Agentic Fantasy Football OS", () => {
+describe("OKBall", () => {
   async function deployAll() {
     const [owner, alice] = await ethers.getSigners();
 

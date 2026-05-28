@@ -7,8 +7,8 @@ import { resolve } from "path";
  * shows real on-chain activity end-to-end:
  *   createLeague → mint → joinLeague → submitLineup → reportPoints → lock → settle → claim
  *
- *   pnpm --filter @aff/contracts seed:testnet   (X Layer testnet, chainId 1952)
- *   pnpm --filter @aff/contracts seed:mainnet   (X Layer mainnet, chainId 196)
+ *   pnpm --filter @okball/contracts seed:testnet   (X Layer testnet, chainId 1952)
+ *   pnpm --filter @okball/contracts seed:mainnet   (X Layer mainnet, chainId 196)
  *
  * Each run creates its OWN fresh league, so it's repeatable and never collides
  * with an already-locked/settled league. Run AFTER deploying. Addresses are read

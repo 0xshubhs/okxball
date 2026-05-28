@@ -1,8 +1,8 @@
 {
-  "name": "@aff/contracts",
+  "name": "@okball/contracts",
   "version": "0.1.0",
   "private": true,
-  "description": "Agentic Fantasy Football OS — smart contracts (X Layer)",
+  "description": "OKBall — smart contracts (X Layer)",
   "scripts": {
     "compile": "hardhat compile",
     "test": "hardhat test",

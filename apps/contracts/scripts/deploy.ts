@@ -3,7 +3,7 @@ import { writeFileSync, readFileSync, existsSync } from "fs";
 import { resolve } from "path";
 
 /**
- * Deploys the full Agentic Fantasy Football OS stack and wires permissions:
+ * Deploys the full OKBall stack and wires permissions:
  *   PlayerNFT · ScoringOracle · PayoutVault · FantasyLeague
  *
  *   pnpm deploy:testnet   (X Layer testnet, chainId 1952)
@@ -83,7 +83,7 @@ async function main() {
 
   console.log("\n--- verify on OKLink ---");
   for (const [name, addr] of Object.entries(addresses)) {
-    console.log(`pnpm --filter @aff/contracts exec hardhat okverify --network ${network.name} ${addr}  # ${name}`);
+    console.log(`pnpm --filter @okball/contracts exec hardhat okverify --network ${network.name} ${addr}  # ${name}`);
   }
 }
 

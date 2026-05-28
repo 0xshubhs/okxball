@@ -43,7 +43,7 @@ So the frontend goes live the moment the deploy finishes — no manual copy-past
 The deploy prints a ready-to-run `okverify` command per contract, e.g.:
 
 ```bash
-pnpm --filter @aff/contracts exec hardhat okverify --network xlayerTestnet <ADDRESS>
+pnpm --filter @okball/contracts exec hardhat okverify --network xlayerTestnet <ADDRESS>
 ```
 
 OKLink verification uses OKX's own plugin (`@okxweb3/hardhat-explorer-verify`) — it is

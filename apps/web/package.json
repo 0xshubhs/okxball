@@ -1,8 +1,8 @@
 {
-  "name": "@aff/web",
+  "name": "@okball/web",
   "version": "0.1.0",
   "private": true,
-  "description": "Agentic Fantasy Football OS — frontend (X Layer + OKX Wallet)",
+  "description": "OKBall — frontend (X Layer + OKX Wallet)",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -10,7 +10,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@aff/shared": "workspace:*",
+    "@okball/shared": "workspace:*",
     "@okxconnect/ui": "^1.9.1",
     "@okxconnect/universal-provider": "^1.9.1",
     "@okxweb3/dex-widget": "^1.3.23",
