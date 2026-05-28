@@ -6,7 +6,7 @@ import { resolve } from "path";
  * Advances and settles an EXISTING league so the wallets that joined + submitted
  * live can claim their winnings.
  *
- *   LEAGUE_ID=2 pnpm --filter @okball/contracts settle:testnet
+ *   LEAGUE_ID=2 pnpm --filter @okxball/contracts settle:testnet
  *
  * For each manager in the league it reads their submitted lineup, reports oracle
  * points for those tokens (captain doubles via the contract), then locks and

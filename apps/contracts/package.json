@@ -1,8 +1,8 @@
 {
-  "name": "@okball/contracts",
+  "name": "@okxball/contracts",
   "version": "0.1.0",
   "private": true,
-  "description": "OKBall — smart contracts (X Layer)",
+  "description": "OkxBall — smart contracts (X Layer)",
   "scripts": {
     "compile": "hardhat compile",
     "test": "hardhat test",

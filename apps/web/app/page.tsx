@@ -129,7 +129,7 @@ export default function Landing() {
             transition={{ delay: 0.1 }}
             className="mt-5 max-w-xl text-base text-white/60 sm:text-lg"
           >
-            OKBall turns the World Cup into a GameFi league.
+            OkxBall turns the World Cup into a GameFi league.
             Mint national-team Player NFTs, let AI agents auto-manage your squad
             from live match stats, and claim OKB the moment the whistle blows.
           </motion.p>
@@ -262,7 +262,7 @@ export default function Landing() {
       </section>
 
       <footer className="border-t border-white/5 py-8 text-center text-xs text-white/35">
-        OKBall · Hackathon build on X Layer · Wallet ramp via
+        OkxBall · Hackathon build on X Layer · Wallet ramp via
         OKX · Demo data is simulated
       </footer>
     </div>

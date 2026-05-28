@@ -119,7 +119,7 @@ const SLIDES: { label: string; render: () => React.ReactNode }[] = [
   {
     label: "Solution",
     render: () => (
-      <Frame kicker="02 · The solution" title="OKBall — an agentic fantasy operating system">
+      <Frame kicker="02 · The solution" title="OkxBall — an agentic fantasy operating system">
         <p className="mb-6 max-w-2xl text-bone">
           You own the players as NFTs. An AI agent does the managing — on
           auto-pilot or from a one-line instruction. Everything settles on-chain

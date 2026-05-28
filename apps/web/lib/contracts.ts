@@ -1,5 +1,5 @@
 /**
- * On-chain bindings re-exported from the shared workspace package (`@okball/shared`).
+ * On-chain bindings re-exported from the shared workspace package (`@okxball/shared`).
  * Addresses resolve from NEXT_PUBLIC_* env, then the deploy-generated
  * deployments.json, then the zero address.
  */
@@ -18,5 +18,5 @@ export {
   OPENING_LEAGUE_ID,
   LEAGUE_ENTRY_FEE_OKB,
   GAMEWEEK,
-} from "@okball/shared";
-export type { Rarity } from "@okball/shared";
+} from "@okxball/shared";
+export type { Rarity } from "@okxball/shared";

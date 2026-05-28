@@ -31,7 +31,7 @@ const config: HardhatUserConfig = {
     },
   },
   // OKLink verification via OKX's official plugin (not Etherscan-compatible).
-  // Verify with: pnpm --filter @okball/contracts exec hardhat okverify --network xlayerTestnet <ADDRESS>
+  // Verify with: pnpm --filter @okxball/contracts exec hardhat okverify --network xlayerTestnet <ADDRESS>
   okxweb3explorer: {
     apiKey: process.env.OKLINK_API_KEY || "",
   },

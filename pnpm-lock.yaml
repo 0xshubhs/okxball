@@ -39,7 +39,7 @@ importers:
 
   apps/web:
     dependencies:
-      '@okball/shared':
+      '@okxball/shared':
         specifier: workspace:*
         version: link:../../packages/shared
       '@okxconnect/ui':

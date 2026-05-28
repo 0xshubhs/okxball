@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * On-chain action layer for OKBall.
+ * On-chain action layer for OkxBall.
  *
  * - `useFantasyTx()` is a single write+confirm tracker a page reuses for all its
  *   actions (mint / train / join / submit / claim).

@@ -1,12 +1,12 @@
 /**
- * OKBall — brand logo (2-colour: red + white).
+ * OkxBall — brand logo (2-colour: red + white).
  *
  * A football panel drawn as an agent network: one red "agent" node at the
  * centre wired to the white squad on the pentagon. Two colours only.
  * Inline SVG, no network cost.
  *
  *   <LogoMark />                icon only
- *   <LogoLockup />              icon + "OKBall" wordmark
+ *   <LogoLockup />              icon + "OkxBall" wordmark
  *   <LogoLockup withTagline />  + tagline
  *   variant="mono"             single-colour (uses currentColor)
  */
@@ -59,7 +59,7 @@ export function LogoMark({
   size = 40,
   className = "",
   variant = "color",
-  title = "OKBall",
+  title = "OkxBall",
 }: MarkProps) {
   const net = variant === "mono" ? "currentColor" : WHITE;
   const agent = variant === "mono" ? "currentColor" : RED;
@@ -107,7 +107,7 @@ export function LogoLockup({
           className="font-display font-bold uppercase tracking-tight"
           style={{ fontSize: markSize * 0.5 }}
         >
-          OK
+          Okx
           <span style={{ color: variant === "mono" ? "currentColor" : RED }}>Ball</span>
         </div>
         {withTagline && (

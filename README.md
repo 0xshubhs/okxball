@@ -1,4 +1,4 @@
-# ⚽ OKBall — Fantasy World Cup, on-chain
+# ⚽ OkxBall — Fantasy World Cup, on-chain
 
 > A fully on-chain **Fantasy World Cup** on **X Layer**. AI agents auto-manage your squad of national-team **Player NFTs** from live match stats, scoring streams through an on-chain **oracle**, and winnings pay out in **OKB** with a one-tap swap to stablecoins via **OKX DEX** — all from your **OKX Wallet**.
 
@@ -8,7 +8,7 @@ Built for the **OKX X Cup Hackathon** (World Cup theme · X Layer). Tracks: **Ga
 
 ## 🔗 On-chain proof (X Layer)
 
-**OKBall is live on X Layer testnet (chainId 1952).** Deployed + a full matchday verified on-chain (mint → join → submitLineup → reportPoints → lock → settle → claim).
+**OkxBall is live on X Layer testnet (chainId 1952).** Deployed + a full matchday verified on-chain (mint → join → submitLineup → reportPoints → lock → settle → claim).
 
 ### Deployed contracts (X Layer testnet · chainId 1952)
 
@@ -65,22 +65,22 @@ Full beat sheet + submission checklist: [`DEMO.md`](DEMO.md).
 ## 🏗️ Architecture (pnpm + Turborepo monorepo)
 
 ```
-okball/
-├── apps/web/                  # @okball/web — Next.js 14, wagmi/viem, R3F 3D, agent route
+okxball/
+├── apps/web/                  # @okxball/web — Next.js 14, wagmi/viem, R3F 3D, agent route
 │   ├── app/                   # routes + /api/agent (RunPod LLM) + /api/dex/* (OKX DEX)
 │   ├── components/three/      # Scene3D, StadiumHero, Pitch3D, PlayerCard3D, MatchdayScene
 │   └── lib/
 │       ├── onchain.ts         # wagmi write/read hooks (mint/train/join/submit/claim)
 │       ├── okx/               # OKX DEX aggregator client (HMAC-signed) + payout helper
 │       └── agents/engine.ts   # deterministic heuristic (agent fallback + scoring math)
-├── apps/contracts/            # @okball/contracts — Hardhat + OpenZeppelin 5.0.2 (Solidity 0.8.24)
+├── apps/contracts/            # @okxball/contracts — Hardhat + OpenZeppelin 5.0.2 (Solidity 0.8.24)
 │   ├── contracts/             # PlayerNFT · ScoringOracle · FantasyLeague · PayoutVault
 │   ├── scripts/deploy.ts      # deploys, wires perms, auto-writes addresses to the app
 │   └── test/fantasy.test.ts   # end-to-end league flow (mint→…→claim)
-└── packages/shared/           # @okball/shared — chains (correct 1952!), ABIs, addresses, constants
+└── packages/shared/           # @okxball/shared — chains (correct 1952!), ABIs, addresses, constants
 ```
 
-The deploy writes addresses into `@okball/shared`, which both the app and contracts read — one source of truth, no copy-paste drift.
+The deploy writes addresses into `@okxball/shared`, which both the app and contracts read — one source of truth, no copy-paste drift.
 
 ---
 
@@ -105,13 +105,13 @@ pnpm deploy:testnet   # chainId 1952  (or pnpm deploy:mainnet -> 196)
 
 Then run the printed `okverify` commands to verify on OKLink. Full runbook: [`apps/contracts/DEPLOY.md`](apps/contracts/DEPLOY.md).
 
-**Seed a demo matchday** (self-contained proof, real txns): `pnpm --filter @okball/contracts seed:testnet` — creates a fresh league, then mints, joins, submits, reports oracle points, locks, settles (50/30/20) and claims, printing an OKLink link per step.
+**Seed a demo matchday** (self-contained proof, real txns): `pnpm --filter @okxball/contracts seed:testnet` — creates a fresh league, then mints, joins, submits, reports oracle points, locks, settles (50/30/20) and claims, printing an OKLink link per step.
 
 **For a live on-camera demo** (a connected wallet really plays):
 ```bash
-pnpm --filter @okball/contracts open-league:testnet   # opens a fresh league, writes NEXT_PUBLIC_LEAGUE_ID
+pnpm --filter @okxball/contracts open-league:testnet   # opens a fresh league, writes NEXT_PUBLIC_LEAGUE_ID
 # … in the app: connect wallet → /players mint → /agent → join + submit (real txns) …
-LEAGUE_ID=<id> pnpm --filter @okball/contracts settle:testnet   # operator scores + settles so winners can claim
+LEAGUE_ID=<id> pnpm --filter @okxball/contracts settle:testnet   # operator scores + settles so winners can claim
 ```
 
 ### Optional live keys (`apps/web/.env.local`)

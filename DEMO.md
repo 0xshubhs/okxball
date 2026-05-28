@@ -55,19 +55,19 @@ pnpm web                      # http://localhost:3000  (Live badge; targets leag
 1. **Fund the demo wallet** with testnet OKB: <https://web3.okx.com/xlayer/faucet> (≈0.2 OKB/day is plenty — mint 0.05, train 0.02, join 0.02).
 2. **(If league #3 is no longer open)** open a fresh one and re-point the app:
    ```bash
-   pnpm --filter @okball/contracts open-league:testnet   # prints the new id, writes NEXT_PUBLIC_LEAGUE_ID
-   pnpm --filter @okball/web build && pnpm web            # rebuild so the new id is inlined
+   pnpm --filter @okxball/contracts open-league:testnet   # prints the new id, writes NEXT_PUBLIC_LEAGUE_ID
+   pnpm --filter @okxball/web build && pnpm web            # rebuild so the new id is inlined
    ```
    > `NEXT_PUBLIC_*` is baked at build time — **rebuild after changing the league id**.
 3. **Record the live half:** connect OKX Wallet → `/players` mint + train → `/agent` run + **join + submit**.
 4. **Settle so claim works on camera:**
    ```bash
-   LEAGUE_ID=3 pnpm --filter @okball/contracts settle:testnet   # reports points → lock → settle
+   LEAGUE_ID=3 pnpm --filter @okxball/contracts settle:testnet   # reports points → lock → settle
    ```
    Then back in `/live`, the demo wallet **claims** its OKB.
 5. **(Optional) refresh the README proof block** with a brand-new self-contained lifecycle:
    ```bash
-   pnpm --filter @okball/contracts seed:testnet   # creates its own league, runs create→…→claim
+   pnpm --filter @okxball/contracts seed:testnet   # creates its own league, runs create→…→claim
    ```
 
 ### Optional polish

@@ -1,8 +1,8 @@
 {
-  "name": "okball",
+  "name": "okxball",
   "version": "0.1.0",
   "private": true,
-  "description": "OKBall — full onchain fantasy World Cup league with AI agents + NFTs, built on X Layer for the OKX X Cup hackathon.",
+  "description": "OkxBall — full onchain fantasy World Cup league with AI agents + NFTs, built on X Layer for the OKX X Cup hackathon.",
   "packageManager": "pnpm@9.15.9",
   "engines": {
     "node": ">=20"
@@ -13,9 +13,9 @@
     "lint": "turbo run lint",
     "test": "turbo run test",
     "compile": "turbo run compile",
-    "web": "pnpm --filter @okball/web dev",
-    "deploy:testnet": "pnpm --filter @okball/contracts deploy:testnet",
-    "deploy:mainnet": "pnpm --filter @okball/contracts deploy:mainnet"
+    "web": "pnpm --filter @okxball/web dev",
+    "deploy:testnet": "pnpm --filter @okxball/contracts deploy:testnet",
+    "deploy:mainnet": "pnpm --filter @okxball/contracts deploy:mainnet"
   },
   "devDependencies": {
     "turbo": "^2.3.3"
