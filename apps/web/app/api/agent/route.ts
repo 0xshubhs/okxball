@@ -27,7 +27,7 @@ const FORMATION_NAMES = Object.keys(FORMATIONS) as FormationName[];
 
 type Body = { mode: "auto" | "prompt"; prompt: string; roster: Player[] };
 
-const SYSTEM_RULES = `You are the autonomous manager for an onchain Fantasy World Cup league ("Agentic Fantasy Football OS" on X Layer).
+const SYSTEM_RULES = `You are the autonomous manager for an onchain Fantasy World Cup league ("OKBall" on X Layer).
 
 Your job: pick the optimal starting XI from the manager's owned national-team Player NFTs.
 

@@ -5,9 +5,9 @@ import Navbar from "@/components/Navbar";
 import Ticker from "@/components/Ticker";
 
 export const metadata: Metadata = {
-  title: "Agentic Fantasy Football OS",
+  title: "OKBall — Fantasy World Cup on X Layer",
   description:
-    "Fully on-chain fantasy football on X Layer. AI agents auto-manage your squad of Player NFTs. Live oracle scoring, instant OKB payouts.",
+    "OKBall: fully on-chain fantasy football on X Layer. AI agents auto-manage your squad of Player NFTs. Live oracle scoring, instant OKB payouts.",
 };
 
 export default function RootLayout({

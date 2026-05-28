@@ -1,5 +1,5 @@
 /**
- * Mock domain data for the Agentic Fantasy Football OS demo — World Cup edition.
+ * Mock domain data for the OKBall demo — World Cup edition.
  * Players are national-team stars (the `club` field carries the national side).
  *
  * In production these come from:

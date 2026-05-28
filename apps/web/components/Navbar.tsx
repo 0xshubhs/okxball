@@ -24,10 +24,10 @@ function Logo() {
       </div>
       <div className="leading-none">
         <div className="font-display text-base font-bold uppercase tracking-tight">
-          Fantasy<span className="text-flame">FC</span>
+          OK<span className="text-flame">Ball</span>
         </div>
         <div className="font-mono text-[9px] font-bold uppercase tracking-[0.2em] text-bone">
-          OS · X Layer
+          Fantasy World Cup · X Layer
         </div>
       </div>
     </Link>

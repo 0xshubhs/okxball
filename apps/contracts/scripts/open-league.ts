@@ -5,8 +5,8 @@ import { resolve } from "path";
 /**
  * Opens a FRESH league and points the web app at it.
  *
- *   pnpm --filter @aff/contracts open-league:testnet   (X Layer testnet, 1952)
- *   pnpm --filter @aff/contracts open-league:mainnet   (X Layer mainnet, 196)
+ *   pnpm --filter @okball/contracts open-league:testnet   (X Layer testnet, 1952)
+ *   pnpm --filter @okball/contracts open-league:mainnet   (X Layer mainnet, 196)
  *
  * Use this before a live demo: once an earlier league has been locked & settled
  * (by the settle script), join/submit revert on it. This creates a new open

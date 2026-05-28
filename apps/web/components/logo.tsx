@@ -1,12 +1,12 @@
 /**
- * FantasyFC OS — brand logo (2-colour: red + white).
+ * OKBall — brand logo (2-colour: red + white).
  *
  * A football panel drawn as an agent network: one red "agent" node at the
  * centre wired to the white squad on the pentagon. Two colours only.
  * Inline SVG, no network cost.
  *
  *   <LogoMark />                icon only
- *   <LogoLockup />              icon + "FantasyFC OS" wordmark
+ *   <LogoLockup />              icon + "OKBall" wordmark
  *   <LogoLockup withTagline />  + tagline
  *   variant="mono"             single-colour (uses currentColor)
  */
@@ -59,7 +59,7 @@ export function LogoMark({
   size = 40,
   className = "",
   variant = "color",
-  title = "FantasyFC OS",
+  title = "OKBall",
 }: MarkProps) {
   const net = variant === "mono" ? "currentColor" : WHITE;
   const agent = variant === "mono" ? "currentColor" : RED;
@@ -107,15 +107,15 @@ export function LogoLockup({
           className="font-display font-bold uppercase tracking-tight"
           style={{ fontSize: markSize * 0.5 }}
         >
-          Fantasy
-          <span style={{ color: variant === "mono" ? "currentColor" : RED }}>FC</span> OS
+          OK
+          <span style={{ color: variant === "mono" ? "currentColor" : RED }}>Ball</span>
         </div>
         {withTagline && (
           <div
             className="mt-1.5 font-mono uppercase tracking-[0.18em] opacity-50"
             style={{ fontSize: markSize * 0.16 }}
           >
-            agentic fantasy football · X Layer
+            fantasy world cup · X Layer
           </div>
         )}
       </div>

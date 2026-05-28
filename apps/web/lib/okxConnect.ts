@@ -34,7 +34,7 @@ async function getUI(): Promise<OkxUI> {
       const icon =
         typeof window !== "undefined" ? `${window.location.origin}/favicon.ico` : "";
       return (await mod.OKXUniversalConnectUI.init({
-        dappMetaData: { name: "Agentic Fantasy Football OS", icon },
+        dappMetaData: { name: "OKBall", icon },
       })) as unknown as OkxUI;
     })();
   }

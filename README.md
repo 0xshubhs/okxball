@@ -1,6 +1,6 @@
-# ⚽ Agentic Fantasy Football OS — Fantasy World Cup, on-chain
+# ⚽ OKBall — Fantasy World Cup, on-chain
 
-> A fully on-chain **Fantasy World Cup** on **X Layer**. AI agents (Claude) auto-manage your squad of national-team **Player NFTs** from live match stats, scoring streams through an on-chain **oracle**, and winnings pay out in **OKB** with a one-tap swap to stablecoins via **OKX DEX** — all from your **OKX Wallet**.
+> A fully on-chain **Fantasy World Cup** on **X Layer**. AI agents auto-manage your squad of national-team **Player NFTs** from live match stats, scoring streams through an on-chain **oracle**, and winnings pay out in **OKB** with a one-tap swap to stablecoins via **OKX DEX** — all from your **OKX Wallet**.
 
 Built for the **OKX X Cup Hackathon** (World Cup theme · X Layer). Tracks: **GameFi + AI Agent + NFT**.
 
@@ -8,16 +8,18 @@ Built for the **OKX X Cup Hackathon** (World Cup theme · X Layer). Tracks: **Ga
 
 ## 🔗 On-chain proof (X Layer)
 
-**Live on X Layer testnet (chainId 1952).** Deployed + a full matchday verified on-chain (mint → join → submitLineup → reportPoints → lock → settle → claim).
+**OKBall is live on X Layer testnet (chainId 1952).** Deployed + a full matchday verified on-chain (mint → join → submitLineup → reportPoints → lock → settle → claim).
 
-| Contract | Address (X Layer testnet) |
-| --- | --- |
-| PlayerNFT (ERC-721) | [`0x08a25a794639a6cA03b0A7C655B2c36d82fF144a`](https://www.oklink.com/x-layer-testnet/address/0x08a25a794639a6cA03b0A7C655B2c36d82fF144a) |
-| ScoringOracle | [`0x9d3ccbE19D1A6e37A9F67868ae7eE8452069d697`](https://www.oklink.com/x-layer-testnet/address/0x9d3ccbE19D1A6e37A9F67868ae7eE8452069d697) |
-| FantasyLeague | [`0x3297baE90BbD190de4F275cEAE71568428e794f0`](https://www.oklink.com/x-layer-testnet/address/0x3297baE90BbD190de4F275cEAE71568428e794f0) |
-| PayoutVault | [`0x30E7EC0E595091adA9c8c85A969c6bA9a995e4D6`](https://www.oklink.com/x-layer-testnet/address/0x30E7EC0E595091adA9c8c85A969c6bA9a995e4D6) |
+### Deployed contracts (X Layer testnet · chainId 1952)
 
-Full matchday lifecycle on **league #2** (every step a verified tx):
+| Contract | Address | Explorer |
+| --- | --- | --- |
+| **PlayerNFT** (ERC-721) | `0x08a25a794639a6cA03b0A7C655B2c36d82fF144a` | [OKLink ↗](https://www.oklink.com/x-layer-testnet/address/0x08a25a794639a6cA03b0A7C655B2c36d82fF144a) |
+| **ScoringOracle** | `0x9d3ccbE19D1A6e37A9F67868ae7eE8452069d697` | [OKLink ↗](https://www.oklink.com/x-layer-testnet/address/0x9d3ccbE19D1A6e37A9F67868ae7eE8452069d697) |
+| **FantasyLeague** | `0x3297baE90BbD190de4F275cEAE71568428e794f0` | [OKLink ↗](https://www.oklink.com/x-layer-testnet/address/0x3297baE90BbD190de4F275cEAE71568428e794f0) |
+| **PayoutVault** | `0x30E7EC0E595091adA9c8c85A969c6bA9a995e4D6` | [OKLink ↗](https://www.oklink.com/x-layer-testnet/address/0x30E7EC0E595091adA9c8c85A969c6bA9a995e4D6) |
+
+Full matchday lifecycle on **league #2** (every step a verified tx on OKLink):
 [createLeague](https://www.oklink.com/x-layer-testnet/tx/0x2fb8e0cd7c85d6ec557540cf39e609c29631a70119f1110fd16cf00ba875b768) ·
 [mint](https://www.oklink.com/x-layer-testnet/tx/0xc3146ba51bed1aa70b69e81972d9088ae3a770f41a6bd61d3ee5bf70a97260d2) ·
 [mint](https://www.oklink.com/x-layer-testnet/tx/0x88277c234eb392b5be9576005af8fdc0787e9bd5bd3f2c4f938884285f21abcb) ·
@@ -63,22 +65,22 @@ Full beat sheet + submission checklist: [`DEMO.md`](DEMO.md).
 ## 🏗️ Architecture (pnpm + Turborepo monorepo)
 
 ```
-agentic-fantasy-football-os/
-├── apps/web/                  # @aff/web — Next.js 14, wagmi/viem, R3F 3D, Claude agent route
+okball/
+├── apps/web/                  # @okball/web — Next.js 14, wagmi/viem, R3F 3D, agent route
 │   ├── app/                   # routes + /api/agent (RunPod LLM) + /api/dex/* (OKX DEX)
 │   ├── components/three/      # Scene3D, StadiumHero, Pitch3D, PlayerCard3D, MatchdayScene
 │   └── lib/
 │       ├── onchain.ts         # wagmi write/read hooks (mint/train/join/submit/claim)
 │       ├── okx/               # OKX DEX aggregator client (HMAC-signed) + payout helper
 │       └── agents/engine.ts   # deterministic heuristic (agent fallback + scoring math)
-├── apps/contracts/            # @aff/contracts — Hardhat + OpenZeppelin 5.0.2 (Solidity 0.8.24)
+├── apps/contracts/            # @okball/contracts — Hardhat + OpenZeppelin 5.0.2 (Solidity 0.8.24)
 │   ├── contracts/             # PlayerNFT · ScoringOracle · FantasyLeague · PayoutVault
 │   ├── scripts/deploy.ts      # deploys, wires perms, auto-writes addresses to the app
 │   └── test/fantasy.test.ts   # end-to-end league flow (mint→…→claim)
-└── packages/shared/           # @aff/shared — chains (correct 1952!), ABIs, addresses, constants
+└── packages/shared/           # @okball/shared — chains (correct 1952!), ABIs, addresses, constants
 ```
 
-The deploy writes addresses into `@aff/shared`, which both the app and contracts read — one source of truth, no copy-paste drift.
+The deploy writes addresses into `@okball/shared`, which both the app and contracts read — one source of truth, no copy-paste drift.
 
 ---
 
@@ -103,13 +105,13 @@ pnpm deploy:testnet   # chainId 1952  (or pnpm deploy:mainnet -> 196)
 
 Then run the printed `okverify` commands to verify on OKLink. Full runbook: [`apps/contracts/DEPLOY.md`](apps/contracts/DEPLOY.md).
 
-**Seed a demo matchday** (self-contained proof, real txns): `pnpm --filter @aff/contracts seed:testnet` — creates a fresh league, then mints, joins, submits, reports oracle points, locks, settles (50/30/20) and claims, printing an OKLink link per step.
+**Seed a demo matchday** (self-contained proof, real txns): `pnpm --filter @okball/contracts seed:testnet` — creates a fresh league, then mints, joins, submits, reports oracle points, locks, settles (50/30/20) and claims, printing an OKLink link per step.
 
 **For a live on-camera demo** (a connected wallet really plays):
 ```bash
-pnpm --filter @aff/contracts open-league:testnet   # opens a fresh league, writes NEXT_PUBLIC_LEAGUE_ID
+pnpm --filter @okball/contracts open-league:testnet   # opens a fresh league, writes NEXT_PUBLIC_LEAGUE_ID
 # … in the app: connect wallet → /players mint → /agent → join + submit (real txns) …
-LEAGUE_ID=<id> pnpm --filter @aff/contracts settle:testnet   # operator scores + settles so winners can claim
+LEAGUE_ID=<id> pnpm --filter @okball/contracts settle:testnet   # operator scores + settles so winners can claim
 ```
 
 ### Optional live keys (`apps/web/.env.local`)

@@ -2,9 +2,9 @@ import Link from "next/link";
 import { LogoLockup, LogoMark } from "@/components/logo";
 
 export const metadata = {
-  title: "Logo · Brand — Agentic Fantasy Football OS",
+  title: "Logo · Brand — OKBall",
   description:
-    "The FantasyFC OS logo: a football panel drawn as an agent/passing network. Marks, lockups, colors and usage.",
+    "The OKBall logo: a football panel drawn as an agent/passing network. Marks, lockups, colors and usage.",
 };
 
 export default function LogoPage() {
@@ -61,7 +61,7 @@ export default function LogoPage() {
             <span className="flex items-center gap-3 text-pitch-950">
               <LogoMark size={44} variant="mono" />
               <span className="font-display text-2xl font-bold tracking-tight">
-                FantasyFC OS
+                OKBall
               </span>
             </span>
           </Swatch>
