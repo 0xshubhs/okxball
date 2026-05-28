@@ -8,9 +8,9 @@ import {
 import { defaultChain } from "@/lib/chains";
 
 /**
- * Embedded OKX DEX swap widget, locked to X Layer (chainId 196). Reuses the
- * connected OKX Wallet / injected provider so swaps sign in-app. No API key
- * needed — this is the iframe widget, not the REST aggregator.
+ * Embedded OKX DEX swap widget. Follows the app's active chain (locked to X
+ * Layer testnet). Reuses the connected OKX Wallet / injected provider so swaps
+ * sign in-app. No API key needed — this is the iframe widget, not REST.
  */
 export default function OkxSwapWidget({
   fromToken,
@@ -29,7 +29,6 @@ export default function OkxSwapWidget({
     const w = window as unknown as { okxwallet?: unknown; ethereum?: unknown };
     const provider = (w.okxwallet ?? w.ethereum) as never;
 
-    // Follow the app's active network (OKX DEX liquidity is on mainnet 196).
     const chainId = String(defaultChain.id);
     const params: Record<string, unknown> = {
       chainIds: [chainId],

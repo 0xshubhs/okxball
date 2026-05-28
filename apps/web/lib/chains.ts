@@ -1,12 +1,10 @@
 /**
- * Chain config lives in the shared workspace package (`@okxball/shared`) so the web
- * app and contracts deploy never drift. This file re-exports it for local imports.
+ * Chain config lives in the shared workspace package (`@okxball/shared`). The
+ * web app is locked to X Layer testnet (1952): wallet connect kept failing
+ * when OKX Connect was offered both chains, and live contracts only exist on
+ * testnet.
  */
-export {
-  xLayer,
-  xLayerTestnet,
-  DEFAULT_NETWORK,
-  defaultChain,
-  chainAddParams,
-} from "@okxball/shared";
-export type { Network } from "@okxball/shared";
+import { xLayerTestnet, chainAddParams } from "@okxball/shared";
+
+export { xLayerTestnet, chainAddParams };
+export const defaultChain = xLayerTestnet;

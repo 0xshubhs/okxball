@@ -1,6 +1,6 @@
 import { http, createConfig, createStorage, cookieStorage } from "wagmi";
 import { injected } from "wagmi/connectors";
-import { xLayer, xLayerTestnet } from "./chains";
+import { xLayerTestnet } from "./chains";
 import { okxConnect } from "./okxConnect";
 
 /**
@@ -26,14 +26,13 @@ export const okxConnector = injected({
 });
 
 export const wagmiConfig = createConfig({
-  chains: [xLayerTestnet, xLayer],
+  chains: [xLayerTestnet],
   // OKX Connect SDK first (extension + mobile QR via OKX's own modal),
   // then the injected fallbacks (window.okxwallet / window.ethereum).
   connectors: [okxConnect(), okxConnector, injected({ shimDisconnect: true })],
   storage: createStorage({ storage: cookieStorage }),
   ssr: true,
   transports: {
-    [xLayer.id]: http(),
     [xLayerTestnet.id]: http(),
   },
 });

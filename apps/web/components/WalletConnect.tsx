@@ -11,9 +11,9 @@ import {
 } from "wagmi";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Copy, LogOut, Wallet, Zap } from "lucide-react";
-import { defaultChain, xLayer, xLayerTestnet } from "@/lib/chains";
+import { defaultChain, xLayerTestnet } from "@/lib/chains";
 
-const SUPPORTED = [xLayer.id, xLayerTestnet.id] as const;
+const SUPPORTED = [xLayerTestnet.id] as const;
 
 function short(addr?: string) {
   return addr ? `${addr.slice(0, 6)}…${addr.slice(-4)}` : "";
@@ -147,11 +147,7 @@ export default function WalletConnect() {
 
             <div className="mb-3 flex items-center gap-2 text-xs text-white/60">
               <span className="h-1.5 w-1.5 rounded-full bg-electric" />
-              {chainId === xLayer.id
-                ? "X Layer"
-                : chainId === xLayerTestnet.id
-                  ? "X Layer Testnet"
-                  : `Chain ${chainId}`}
+              {chainId === xLayerTestnet.id ? "X Layer Testnet" : `Chain ${chainId}`}
             </div>
 
             <button

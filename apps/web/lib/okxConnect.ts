@@ -2,7 +2,7 @@
 
 import { createConnector } from "wagmi";
 import { getAddress, type Address } from "viem";
-import { defaultChain, xLayer, xLayerTestnet } from "./chains";
+import { defaultChain, xLayerTestnet } from "./chains";
 
 /**
  * Custom wagmi connector wrapping the OKX Connect SDK (@okxconnect/ui).
@@ -22,7 +22,6 @@ type OkxUI = {
 
 const CAIP = (id: number) => `eip155:${id}`;
 const RPC: Record<number, string> = {
-  [xLayer.id]: xLayer.rpcUrls.default.http[0],
   [xLayerTestnet.id]: xLayerTestnet.rpcUrls.default.http[0],
 };
 
@@ -84,8 +83,8 @@ export function okxConnect() {
         session = await ui.openModal({
           namespaces: {
             eip155: {
-              chains: [CAIP(xLayer.id), CAIP(xLayerTestnet.id)],
-              defaultChain: String(current),
+              chains: [CAIP(xLayerTestnet.id)],
+              defaultChain: String(xLayerTestnet.id),
               rpcMap: RPC,
             },
           },
