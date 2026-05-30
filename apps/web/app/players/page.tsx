@@ -23,7 +23,8 @@ import {
   POSITION_META,
   RARITY_META,
 } from "@/lib/data";
-import { TRAIN_PRICE, rarityIndex } from "@/lib/contracts";
+import { TRAIN_PRICE, rarityIndex, MINT_PRICES } from "@/lib/contracts";
+import { useBalance } from "wagmi";
 import {
   useAccount,
   useDeployed,
@@ -46,9 +47,26 @@ export default function PlayersPage() {
   const [players, setPlayers] = useState<Player[]>(PLAYERS);
   const [active, setActive] = useState<Player | null>(null);
   const [toast, setToast] = useState<string | null>(null);
-  const { isConnected } = useAccount();
+  const { address, isConnected } = useAccount();
+  const { data: bal } = useBalance({ address });
   const deployed = useDeployed();
   const tx = useFantasyTx();
+
+  /**
+   * Mint price per rarity is enforced on-chain (PlayerNFT.mintPrice), so a tier
+   * the wallet can't pay reverts with "insufficient OKB". On scarce testnet
+   * balances we clamp the minted tier to the highest one the wallet can afford
+   * (keeping a little OKB for gas). Returns -1 if even Common is unaffordable.
+   */
+  function affordableRarity(desired: number): number {
+    const okb = bal ? Number(bal.formatted) : 0;
+    const budget = okb - 0.01; // gas headroom
+    let best = -1;
+    for (let i = 0; i <= desired; i++) {
+      if (MINT_PRICES[i] <= budget) best = i;
+    }
+    return best;
+  }
 
   const filtered = useMemo(() => {
     return players.filter((p) => {
@@ -108,8 +126,13 @@ export default function PlayersPage() {
   // playerNFT.mint(rarity) { value: MINT_PRICES[rarity] } when live; demo otherwise.
   async function buy(p: Player) {
     if (deployed.playerNFT && isConnected) {
+      const idx = affordableRarity(rarityIndex(p.rarity));
+      if (idx < 0) {
+        flash(`Need ≥ ${MINT_PRICES[0]} OKB (+ gas) to mint — top up testnet OKB`);
+        return;
+      }
       try {
-        await tx.writeContractAsync(txMint(rarityIndex(p.rarity)));
+        await tx.writeContractAsync(txMint(idx));
         update(p.id, { owned: true });
       } catch {
         /* surfaced by TxToast */
@@ -122,8 +145,13 @@ export default function PlayersPage() {
 
   async function mintPack() {
     if (deployed.playerNFT && isConnected) {
+      const idx = affordableRarity(2); // best tier up to Epic the wallet affords
+      if (idx < 0) {
+        flash(`Need ≥ ${MINT_PRICES[0]} OKB (+ gas) to mint — top up testnet OKB`);
+        return;
+      }
       try {
-        await tx.writeContractAsync(txMint(2)); // Epic pull
+        await tx.writeContractAsync(txMint(idx));
       } catch {
         /* surfaced by TxToast */
       }
