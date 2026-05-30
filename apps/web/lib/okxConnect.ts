@@ -2,7 +2,7 @@
 
 import { createConnector } from "wagmi";
 import { getAddress, type Address } from "viem";
-import { defaultChain, xLayerTestnet } from "./chains";
+import { defaultChain, xLayerTestnet, chainAddParams } from "./chains";
 
 /**
  * Custom wagmi connector wrapping the OKX Connect SDK (@okxconnect/ui).
@@ -61,6 +61,36 @@ function chainIdOf(session: OkxUI["session"]): number | undefined {
   return dc ? Number(dc) : undefined;
 }
 
+/**
+ * Force the connected wallet onto X Layer testnet (1952). OKX wallets often
+ * default to X Layer *mainnet* (196), which makes wagmi throw a
+ * ChainMismatchError ("current chain id: 196 … target … 1952") on every write.
+ * We switch the wallet, adding the chain first if it isn't registered (4902).
+ */
+async function ensureChain(ui: OkxUI, chainId: number): Promise<void> {
+  const hex = `0x${chainId.toString(16)}`;
+  try {
+    await ui.request(
+      { method: "wallet_switchEthereumChain", params: [{ chainId: hex }] },
+      CAIP(chainId)
+    );
+  } catch (err) {
+    const e = err as { code?: number; message?: string };
+    const notAdded =
+      e?.code === 4902 ||
+      /unrecognized|not added|add.*chain/i.test(String(e?.message ?? ""));
+    if (!notAdded) throw err;
+    await ui.request(
+      { method: "wallet_addEthereumChain", params: [chainAddParams(xLayerTestnet)] },
+      CAIP(chainId)
+    );
+    await ui.request(
+      { method: "wallet_switchEthereumChain", params: [{ chainId: hex }] },
+      CAIP(chainId)
+    );
+  }
+}
+
 type Provider = {
   request: (args: { method: string; params?: unknown }) => Promise<unknown>;
   on: (...a: unknown[]) => void;
@@ -92,7 +122,17 @@ export function okxConnect() {
       }
       const accounts = accountsOf(session);
       if (!accounts.length) throw new Error("OKX Connect: connection cancelled");
-      current = chainIdOf(session) ?? current;
+
+      // App is locked to testnet. If the wallet came back on another chain
+      // (typically X Layer mainnet 196), switch it before any write goes out.
+      current = xLayerTestnet.id;
+      if (chainIdOf(session) !== xLayerTestnet.id) {
+        try {
+          await ensureChain(ui, xLayerTestnet.id);
+        } catch {
+          /* surfaced later as the "Switch to X Layer Testnet" button */
+        }
+      }
 
       ui.on?.("session_delete", () => config.emitter.emit("disconnect"));
       ui.on?.("session_update", async () => {
@@ -119,8 +159,10 @@ export function okxConnect() {
     },
 
     async getChainId() {
-      const ui = await getUI();
-      return chainIdOf(ui.session) ?? current;
+      // `current` is kept in sync by connect/switchChain/onChainChanged and is
+      // the chain our provider actually targets. Trusting it (rather than the
+      // possibly-stale session) avoids a spurious wagmi ChainMismatchError.
+      return current;
     },
 
     async getProvider() {
@@ -144,13 +186,7 @@ export function okxConnect() {
 
     async switchChain({ chainId }) {
       const ui = await getUI();
-      await ui.request(
-        {
-          method: "wallet_switchEthereumChain",
-          params: [{ chainId: `0x${chainId.toString(16)}` }],
-        },
-        CAIP(chainId)
-      );
+      await ensureChain(ui, chainId);
       current = chainId;
       const chain = config.chains.find((c) => c.id === chainId);
       if (!chain) throw new Error("Chain not configured");
